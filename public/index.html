@@ -33,6 +33,7 @@
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --code-bg: #1e293b;
   --code-border: #334155;
+  --hover: rgba(255, 255, 255, 0.05);
   
   /* Light theme variables */
   --bg-primary-light: #ffffff;
@@ -503,6 +504,9 @@ body.light-theme {
   font-size: 12px;
   color: var(--text-secondary);
   text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 .copy-code-btn, .preview-code-btn {
   background: transparent;
@@ -542,6 +546,44 @@ body.light-theme {
   color: var(--text-primary); /* Ensure inline code is visible */
 }
 
+/* Large code blocks */
+.code-block.large-code .code-content {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.code-block.large-code .code-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.code-block.large-code .code-content::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+.code-block.large-code .code-content::-webkit-scrollbar-thumb {
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+}
+
+.code-block.large-code .code-content::-webkit-scrollbar-thumb:hover {
+  background: var(--border);
+}
+
+/* Code block loading state */
+.code-block.loading .code-content {
+  position: relative;
+}
+
+.code-block.loading .code-content::after {
+  content: "Processing code...";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
 /* Code Preview Container */
 .preview-container {
   margin-top: 10px;
@@ -561,12 +603,20 @@ body.light-theme {
   align-items: center;
 }
 .preview-content {
-  padding: 16px;
+  padding: 0;
   background: white;
   color: black;
   max-height: 400px;
   overflow: auto;
 }
+
+.preview-content iframe {
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+  border: none;
+}
+
 .preview-close {
   background: transparent;
   border: none;
@@ -2002,10 +2052,14 @@ function processMessageText(text) {
     const trimmedCode = code.trim();
     const isHtml = lang === 'html';
     
+    // Check if code is large (over 50 lines)
+    const lineCount = trimmedCode.split('\n').length;
+    const isLargeCode = lineCount > 50;
+    
     return `
-      <div class="code-block">
+      <div class="code-block ${isLargeCode ? 'large-code' : ''}">
         <div class="code-header">
-          <div class="code-language">${lang}</div>
+          <div class="code-language">${lang} ${isLargeCode ? `(${lineCount} lines)` : ''}</div>
           <button class="copy-code-btn" onclick="copyCode(this)">
             <i class="fas fa-copy"></i> Copy
           </button>
@@ -2057,6 +2111,9 @@ function copyCode(button) {
   const codeBlock = button.closest('.code-block');
   const codeContent = codeBlock.querySelector('code').textContent;
   
+  // Check if it's a large code block
+  const isLargeCode = codeBlock.classList.contains('large-code');
+  
   navigator.clipboard.writeText(codeContent).then(() => {
     const originalHTML = button.innerHTML;
     button.innerHTML = '<i class="fas fa-check"></i> Copied!';
@@ -2065,14 +2122,14 @@ function copyCode(button) {
       button.innerHTML = originalHTML;
     }, 2000);
     
-    showToast('Code copied to clipboard', 'success');
+    showToast(isLargeCode ? 'Large code copied to clipboard' : 'Code copied to clipboard', 'success');
   }).catch(err => {
     console.error('Failed to copy code:', err);
     showToast('Failed to copy code', 'error');
   });
 }
 
-// Toggle Code Preview
+// Toggle Code Preview - ENHANCED VERSION
 function togglePreview(button) {
   const codeBlock = button.closest('.code-block');
   const previewContainer = codeBlock.querySelector('.preview-container');
@@ -2082,13 +2139,26 @@ function togglePreview(button) {
   if (previewContainer.style.display === 'none' || !previewContainer.style.display) {
     // Show preview
     previewContainer.style.display = 'block';
-    previewContent.innerHTML = codeContent;
-    button.innerHTML = '<i class="fas fa-eye-slash"></i> Hide';
     
-    // Highlight syntax if Prism is available
-    if (window.Prism) {
-      Prism.highlightAllUnder(previewContent);
-    }
+    // Clear preview content
+    previewContent.innerHTML = '';
+    
+    // Create iframe to safely render HTML
+    const iframe = document.createElement('iframe');
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    iframe.style.border = 'none';
+    iframe.style.backgroundColor = 'white';
+    
+    previewContent.appendChild(iframe);
+    
+    // Write HTML content to iframe
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+    iframeDoc.open();
+    iframeDoc.write(codeContent);
+    iframeDoc.close();
+    
+    button.innerHTML = '<i class="fas fa-eye-slash"></i> Hide';
   } else {
     // Hide preview
     previewContainer.style.display = 'none';
