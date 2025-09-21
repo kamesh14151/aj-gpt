@@ -12,6 +12,7 @@ export default async function handler(req, res) {
     let url = "";
     let headers = { "Content-Type": "application/json" };
     let requestBody;
+    let modelUsed; // Track the model being used
 
     if (ai === "grok") {
       const GROQ_API_KEY = process.env.GROQ_API_KEY;
@@ -34,6 +35,7 @@ export default async function handler(req, res) {
       };
       
       requestBody = JSON.stringify(groqPayload);
+      modelUsed = "llama-3.3-70b-versatile"; // Track the actual model
       
     } else if (ai === "gemini") {
       const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
@@ -75,6 +77,7 @@ export default async function handler(req, res) {
       
       url = `https://generativelanguage.googleapis.com/v1beta/models/${payload.model}:generateContent?key=${GEMINI_API_KEY}`;
       requestBody = JSON.stringify(geminiPayload);
+      modelUsed = payload.model; // Track the actual model
       
     } else if (ai === "claude") {
       const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
@@ -100,15 +103,14 @@ export default async function handler(req, res) {
       };
       
       requestBody = JSON.stringify(anthropicPayload);
+      modelUsed = payload.model || "claude-sonnet-4-20250514"; // Track the actual model
       
     } else {
       return res.status(400).json({ error: "Unknown AI selected" });
     }
 
     console.log(`Making ${ai} API request to:`, url);
-    console.log(`Using model:`, ai === "grok" ? "llama-3.1-70b-versatile" : 
-                                ai === "gemini" ? payload.model : 
-                                "claude-sonnet-4-20250514");
+    console.log(`Using model:`, modelUsed); // Use tracked model variable
 
     const response = await fetch(url, { 
       method: "POST", 
