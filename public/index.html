@@ -19,6 +19,7 @@
   --aj-yellow: #FFD700;
   --flash-color: #4F46E5;
   --mini-color: #9333EA;
+  --claude-color: #d946ef;
   --bg-primary: #0f172a;
   --bg-secondary: #1e293b;
   --bg-tertiary: #334155;
@@ -32,6 +33,16 @@
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --code-bg: #1e293b;
   --code-border: #334155;
+  
+  /* Light theme variables */
+  --bg-primary-light: #ffffff;
+  --bg-secondary-light: #f8fafc;
+  --bg-tertiary-light: #f1f5f9;
+  --text-primary-light: #0f172a;
+  --text-secondary-light: #64748b;
+  --border-light: #e2e8f0;
+  --code-bg-light: #f8fafc;
+  --code-border-light: #e2e8f0;
 }
 * {
   margin: 0;
@@ -44,7 +55,20 @@ body {
   color: var(--text-primary);
   height: 100vh;
   overflow: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
+
+body.light-theme {
+  --bg-primary: var(--bg-primary-light);
+  --bg-secondary: var(--bg-secondary-light);
+  --bg-tertiary: var(--bg-tertiary-light);
+  --text-primary: var(--text-primary-light);
+  --text-secondary: var(--text-secondary-light);
+  --border: var(--border-light);
+  --code-bg: var(--code-bg-light);
+  --code-border: var(--code-border-light);
+}
+
 /* App Container */
 .app-container {
   display: flex;
@@ -193,6 +217,28 @@ body {
   flex-grow: 1;
   margin-left: 50px;
 }
+.ai-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: absolute;
+  left: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.ai-status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+}
+.ai-status-indicator.offline {
+  background: var(--error);
+}
+.ai-status-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
 .chat-actions {
   position: absolute;
   right: 24px;
@@ -322,6 +368,9 @@ body {
 }
 .message.ai.gemini .message-avatar {
   background: var(--mini-color);
+}
+.message.ai.claude .message-avatar {
+  background: var(--claude-color);
 }
 
 .message-content {
@@ -757,6 +806,25 @@ body {
   font-size: 12px;
   color: var(--text-secondary);
 }
+.model-status {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+.model-status-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--success);
+}
+.model-status-indicator.offline {
+  background: var(--error);
+}
+.model-status-text {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
 /* Settings Modal */
 .settings-modal {
   display: none;
@@ -978,6 +1046,10 @@ body {
     right: 16px;
     left: auto;
   }
+  
+  .ai-status {
+    display: none; /* Hide on mobile to save space */
+  }
 
   .chat-container {
     padding: 16px;
@@ -1147,6 +1219,10 @@ body {
   <div class="main-content">
     <!-- Chat Header -->
     <div class="chat-header">
+      <div class="ai-status" id="aiStatus">
+        <span class="ai-status-indicator" id="aiStatusIndicator"></span>
+        <span class="ai-status-text" id="aiStatusText">AJ-GPT-flash</span>
+      </div>
       <div class="chat-title">AJ-GPT</div>
       
       <div class="chat-actions">
@@ -1219,6 +1295,10 @@ body {
     <div class="model-modal-info">
       <div class="model-modal-name">AJ-GPT-flash</div>
       <div class="model-modal-desc">Fast and efficient for most tasks</div>
+      <div class="model-status">
+        <span class="model-status-indicator" id="grok-status"></span>
+        <span class="model-status-text" id="grok-status-text">Checking...</span>
+      </div>
     </div>
   </div>
   <div class="model-modal-option" data-model="gemini" data-name="AJ-GPT-mini">
@@ -1226,6 +1306,21 @@ body {
     <div class="model-modal-info">
       <div class="model-modal-name">AJ-GPT-mini</div>
       <div class="model-modal-desc">Compact and resource-friendly</div>
+      <div class="model-status">
+        <span class="model-status-indicator" id="gemini-status"></span>
+        <span class="model-status-text" id="gemini-status-text">Checking...</span>
+      </div>
+    </div>
+  </div>
+  <div class="model-modal-option" data-model="claude" data-name="AJ-GPT-claude">
+    <div class="model-modal-icon" style="background: var(--claude-color);">C</div>
+    <div class="model-modal-info">
+      <div class="model-modal-name">AJ-GPT-claude</div>
+      <div class="model-modal-desc">Best for reasoning and complex tasks</div>
+      <div class="model-status">
+        <span class="model-status-indicator" id="claude-status"></span>
+        <span class="model-status-text" id="claude-status-text">Checking...</span>
+      </div>
     </div>
   </div>
 </div>
@@ -1241,7 +1336,7 @@ body {
     </div>
     <div class="settings-body">
       <div class="settings-section">
-        <div class="settings-section-title">General</div>
+        <div class="settings-section-title">Appearance</div>
         <div class="settings-item">
           <div class="settings-label">Dark Mode</div>
           <div class="settings-control">
@@ -1250,6 +1345,18 @@ body {
             </div>
           </div>
         </div>
+        <div class="settings-item">
+          <div class="settings-label">Premium White Mode</div>
+          <div class="settings-control">
+            <div class="toggle-switch" id="whiteModeToggle">
+              <div class="toggle-switch-handle"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="settings-section">
+        <div class="settings-section-title">General</div>
         <div class="settings-item">
           <div class="settings-label">Typing Animation</div>
           <div class="settings-control">
@@ -1324,17 +1431,25 @@ const chatHistoryElement = document.getElementById('chatHistory');
 const toast = document.getElementById('toast');
 const toastMessage = document.getElementById('toastMessage');
 const clearChatBtn = document.getElementById('clearChatBtn');
+const aiStatusIndicator = document.getElementById('aiStatusIndicator');
+const aiStatusText = document.getElementById('aiStatusText');
 
 // State Variables
 let allChats = JSON.parse(localStorage.getItem('ajstudiozAllChats') || '[]');
 let selectedChatId = null;
 let darkMode = true;
+let whiteMode = false;
 let typingAnimationEnabled = true;
 let soundEnabled = false;
 let responseLength = 'medium';
 let fontSize = '16px';
 let selectedAI = 'grok';
 let selectedAIName = 'AJ-GPT-flash';
+let aiStatus = {
+  grok: 'unknown',
+  gemini: 'unknown',
+  claude: 'unknown'
+};
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -1350,16 +1465,25 @@ document.addEventListener('DOMContentLoaded', () => {
   renderChatHistory();
   renderMessages();
   setupEventListeners();
+  
+  // Check AI status on load
+  checkAllAIStatus();
+  
+  // Set up periodic status checks
+  setInterval(checkAllAIStatus, 60000); // Check every minute
 
   const currentChat = allChats.find(chat => chat.id === selectedChatId);
   if (currentChat) {
     selectedAI = currentChat.model;
-    selectedAIName = currentChat.model === 'grok' ? 'AJ-GPT-flash' : 'AJ-GPT-mini';
+    selectedAIName = currentChat.model === 'grok' ? 'AJ-GPT-flash' : 
+                   currentChat.model === 'gemini' ? 'AJ-GPT-mini' : 'AJ-GPT-claude';
     
     document.querySelectorAll('.model-modal-option').forEach(option => {
       option.classList.toggle('active', option.dataset.model === currentChat.model);
     });
   }
+  
+  updateAIStatusDisplay();
 });
 
 // Helper to get the current chat object
@@ -1431,8 +1555,28 @@ function setupEventListeners() {
   document.getElementById('darkModeToggle').addEventListener('click', () => {
     darkMode = !darkMode;
     document.getElementById('darkModeToggle').classList.toggle('active', darkMode);
-    document.body.classList.toggle('dark-mode', darkMode);
-    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+    
+    // If dark mode is enabled, disable white mode
+    if (darkMode && whiteMode) {
+      whiteMode = false;
+      document.getElementById('whiteModeToggle').classList.remove('active');
+    }
+    
+    applyTheme();
+    saveSettings();
+  });
+  
+  document.getElementById('whiteModeToggle').addEventListener('click', () => {
+    whiteMode = !whiteMode;
+    document.getElementById('whiteModeToggle').classList.toggle('active', whiteMode);
+    
+    // If white mode is enabled, disable dark mode
+    if (whiteMode && darkMode) {
+      darkMode = false;
+      document.getElementById('darkModeToggle').classList.remove('active');
+    }
+    
+    applyTheme();
     saveSettings();
   });
   
@@ -1475,6 +1619,91 @@ function setupEventListeners() {
   });
 }
 
+// Apply theme based on settings
+function applyTheme() {
+  if (whiteMode) {
+    document.body.classList.add('light-theme');
+  } else if (darkMode) {
+    document.body.classList.remove('light-theme');
+  } else {
+    // Auto mode - follow system preference
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (prefersDark) {
+      document.body.classList.remove('light-theme');
+    } else {
+      document.body.classList.add('light-theme');
+    }
+  }
+}
+
+// Check status of all AI models
+async function checkAllAIStatus() {
+  checkAIStatus('grok');
+  checkAIStatus('gemini');
+  checkAIStatus('claude');
+}
+
+// Check status of a specific AI model
+async function checkAIStatus(aiModel) {
+  try {
+    // We'll make a simple request to the API to check if it's accessible
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        ai: aiModel,
+        payload: {
+          model: aiModel === 'grok' ? 'llama-3.1-70b-versatile' : 
+                 aiModel === 'gemini' ? 'gemini-2.0-flash-exp' : 
+                 'claude-sonnet-4-20250514',
+          messages: [{ role: 'user', content: 'test' }],
+          max_tokens: 1
+        }
+      })
+    });
+    
+    if (response.ok) {
+      aiStatus[aiModel] = 'online';
+    } else {
+      aiStatus[aiModel] = 'offline';
+    }
+  } catch (error) {
+    aiStatus[aiModel] = 'offline';
+  }
+  
+  updateAIStatusDisplay();
+  updateModelStatusInModal(aiModel);
+}
+
+// Update AI status display in header
+function updateAIStatusDisplay() {
+  aiStatusText.textContent = selectedAIName;
+  
+  if (aiStatus[selectedAI] === 'online') {
+    aiStatusIndicator.classList.remove('offline');
+  } else {
+    aiStatusIndicator.classList.add('offline');
+  }
+}
+
+// Update AI status in model selector modal
+function updateModelStatusInModal(aiModel) {
+  const statusIndicator = document.getElementById(`${aiModel}-status`);
+  const statusText = document.getElementById(`${aiModel}-status-text`);
+  
+  if (statusIndicator && statusText) {
+    if (aiStatus[aiModel] === 'online') {
+      statusIndicator.classList.remove('offline');
+      statusText.textContent = 'Online';
+    } else {
+      statusIndicator.classList.add('offline');
+      statusText.textContent = 'Offline';
+    }
+  }
+}
+
 // Load Settings
 function loadSettings() {
   const settings = JSON.parse(localStorage.getItem('ajstudiozSettings') || '{}');
@@ -1482,8 +1711,11 @@ function loadSettings() {
   if (settings.darkMode !== undefined) {
     darkMode = settings.darkMode;
     document.getElementById('darkModeToggle').classList.toggle('active', darkMode);
-    document.body.classList.toggle('dark-mode', darkMode);
-    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+  }
+  
+  if (settings.whiteMode !== undefined) {
+    whiteMode = settings.whiteMode;
+    document.getElementById('whiteModeToggle').classList.toggle('active', whiteMode);
   }
   
   if (settings.typingAnimationEnabled !== undefined) {
@@ -1506,12 +1738,15 @@ function loadSettings() {
     document.body.style.fontSize = fontSize;
     document.getElementById('fontSize').value = fontSize;
   }
+  
+  applyTheme();
 }
 
 // Save Settings
 function saveSettings() {
   const settings = {
     darkMode,
+    whiteMode,
     typingAnimationEnabled,
     soundEnabled,
     responseLength,
@@ -1523,12 +1758,14 @@ function saveSettings() {
 // Reset Settings
 function resetSettings() {
   darkMode = true;
+  whiteMode = false;
   typingAnimationEnabled = true;
   soundEnabled = false;
   responseLength = 'medium';
   fontSize = '16px';
   
   document.getElementById('darkModeToggle').classList.add('active');
+  document.getElementById('whiteModeToggle').classList.remove('active');
   document.getElementById('typingToggle').classList.add('active');
   document.getElementById('soundToggle').classList.remove('active');
   
@@ -1536,8 +1773,7 @@ function resetSettings() {
   document.getElementById('fontSize').value = fontSize;
   
   document.body.style.fontSize = fontSize;
-  document.body.classList.add('dark-mode');
-  document.documentElement.setAttribute('data-theme', 'dark');
+  applyTheme();
   
   saveSettings();
 }
@@ -1585,11 +1821,14 @@ function switchChat(chatId) {
     const currentChat = getCurrentChat();
     if (currentChat) {
         selectedAI = currentChat.model;
-        selectedAIName = currentChat.model === 'grok' ? 'AJ-GPT-flash' : 'AJ-GPT-mini';
+        selectedAIName = currentChat.model === 'grok' ? 'AJ-GPT-flash' : 
+                       currentChat.model === 'gemini' ? 'AJ-GPT-mini' : 'AJ-GPT-claude';
         
         document.querySelectorAll('.model-modal-option').forEach(option => {
             option.classList.toggle('active', option.dataset.model === currentChat.model);
         });
+        
+        updateAIStatusDisplay();
     }
     showToast(`Switched to: ${currentChat.title}`, 'info');
 }
@@ -1610,6 +1849,8 @@ function selectAI(aiIdentifier, name) {
   document.querySelectorAll('.model-modal-option').forEach(option => {
     option.classList.toggle('active', option.dataset.model === aiIdentifier);
   });
+  
+  updateAIStatusDisplay();
   showToast(`Selected AI for this chat: ${name}`, 'info');
 }
 
@@ -1705,7 +1946,9 @@ function renderMessages() {
     
     const avatar = document.createElement('div');
     avatar.classList.add('message-avatar');
-    avatar.textContent = msg.sender === 'user' ? 'U' : (msg.aiType === 'grok' ? 'F' : 'M');
+    avatar.textContent = msg.sender === 'user' ? 'U' : 
+                         msg.aiType === 'grok' ? 'F' : 
+                         msg.aiType === 'gemini' ? 'M' : 'C';
     messageDiv.appendChild(avatar);
     
     const content = document.createElement('div');
@@ -1936,10 +2179,13 @@ async function sendMessage() {
 
     if (currentChat.model === 'grok') {
       backendAIIdentifier = 'grok';
-      modelNameForPayload = 'llama-3.3-70b-versatile'; 
+      modelNameForPayload = 'llama-3.1-70b-versatile'; 
     } else if (currentChat.model === 'gemini') {
       backendAIIdentifier = 'gemini';
-      modelNameForPayload = 'gemini-2.0-flash-exp'; // Updated to working Gemini model
+      modelNameForPayload = 'gemini-2.0-flash-exp'; 
+    } else if (currentChat.model === 'claude') {
+      backendAIIdentifier = 'claude';
+      modelNameForPayload = 'claude-sonnet-4-20250514';
     } else {
       console.error("Unknown AI selected in current chat:", currentChat.model);
       showToast('Error: Unknown AI model selected for this chat.', 'error');
@@ -2043,7 +2289,8 @@ async function renderTypingMessage(aiMessage) {
   
   const avatar = document.createElement('div');
   avatar.classList.add('message-avatar');
-  avatar.textContent = aiMessage.aiType === 'grok' ? 'F' : 'M';
+  avatar.textContent = aiMessage.aiType === 'grok' ? 'F' : 
+                      aiMessage.aiType === 'gemini' ? 'M' : 'C';
   messageDiv.appendChild(avatar);
   
   const content = document.createElement('div');
