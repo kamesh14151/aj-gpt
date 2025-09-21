@@ -29,20 +29,15 @@ export default async function handler(req, res) {
       
       // Transform the payload for Gemini API format
       const geminiPayload = {
-        contents: [
-          {
-            parts: [
-              {
-                text: payload.messages[0].content
-              }
-            ]
-          }
-        ],
+        contents: payload.messages.map(msg => ({
+          role: msg.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: msg.content }]
+        })),
         generationConfig: {
-          temperature: 0.7,
+          temperature: payload.temperature || 0.7,
           topK: 1,
           topP: 1,
-          maxOutputTokens: 2048,
+          maxOutputTokens: payload.max_tokens || 2048,
         },
         safetySettings: [
           {
@@ -76,7 +71,6 @@ export default async function handler(req, res) {
       body: requestBody 
     });
 
-    // Read response body only once and store it
     const responseText = await response.text();
     let responseData;
     
