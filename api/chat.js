@@ -20,11 +20,11 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: "GROQ_API_KEY not configured" });
       }
       
-      // Ensure we're using the correct Groq endpoint and model
+      // Use the Groq endpoint and model
       url = "https://api.groq.com/openai/v1/chat/completions";
       headers.Authorization = `Bearer ${GROQ_API_KEY}`;
       
-      // Use a known working Groq model
+      // Use the working Groq model
       const groqPayload = {
         ...payload,
         model: "llama-3.1-70b-versatile", // Confirmed working model
@@ -76,12 +76,39 @@ export default async function handler(req, res) {
       url = `https://generativelanguage.googleapis.com/v1beta/models/${payload.model}:generateContent?key=${GEMINI_API_KEY}`;
       requestBody = JSON.stringify(geminiPayload);
       
+    } else if (ai === "claude") {
+      const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+      if (!ANTHROPIC_API_KEY) {
+        return res.status(500).json({ error: "ANTHROPIC_API_KEY not set" });
+      }
+      
+      // Transform the payload for Anthropic API format
+      const anthropicPayload = {
+        model: payload.model || "claude-sonnet-4-20250514",
+        max_tokens: payload.max_tokens || 1024,
+        messages: payload.messages.map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }))
+      };
+      
+      url = "https://api.anthropic.com/v1/messages";
+      headers = {
+        "Content-Type": "application/json",
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01"
+      };
+      
+      requestBody = JSON.stringify(anthropicPayload);
+      
     } else {
       return res.status(400).json({ error: "Unknown AI selected" });
     }
 
     console.log(`Making ${ai} API request to:`, url);
-    console.log(`Using model:`, ai === "grok" ? "llama-3.1-70b-versatile" : payload.model);
+    console.log(`Using model:`, ai === "grok" ? "llama-3.1-70b-versatile" : 
+                                ai === "gemini" ? payload.model : 
+                                "claude-sonnet-4-20250514");
 
     const response = await fetch(url, { 
       method: "POST", 
@@ -106,11 +133,16 @@ export default async function handler(req, res) {
     if (!response.ok) {
       console.error(`${ai} API Error (${response.status}):`, responseData);
       
-      // Handle specific Groq error cases
+      // Handle specific error cases
       if (ai === "grok" && response.status === 401) {
         return res.status(401).json({ 
           error: "Authentication failed with Groq API",
           details: "Please check your GROQ_API_KEY in environment variables"
+        });
+      } else if (ai === "claude" && response.status === 401) {
+        return res.status(401).json({ 
+          error: "Authentication failed with Anthropic API",
+          details: "Please check your ANTHROPIC_API_KEY in environment variables"
         });
       }
       
@@ -120,7 +152,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // Transform Gemini response to match OpenAI format for consistency
+    // Transform Gemini and Claude responses to match OpenAI format for consistency
     if (ai === "gemini") {
       if (responseData.candidates && responseData.candidates[0]?.content?.parts?.[0]?.text) {
         const transformedResponse = {
@@ -138,6 +170,26 @@ export default async function handler(req, res) {
         console.error("Unexpected Gemini response format:", responseData);
         return res.status(500).json({ 
           error: "Unexpected response format from Gemini",
+          details: JSON.stringify(responseData).substring(0, 200)
+        });
+      }
+    } else if (ai === "claude") {
+      if (responseData.content && responseData.content[0]?.text) {
+        const transformedResponse = {
+          choices: [
+            {
+              message: {
+                content: responseData.content[0].text,
+                role: "assistant"
+              }
+            }
+          ]
+        };
+        return res.status(200).json(transformedResponse);
+      } else {
+        console.error("Unexpected Anthropic response format:", responseData);
+        return res.status(500).json({ 
+          error: "Unexpected response format from Anthropic",
           details: JSON.stringify(responseData).substring(0, 200)
         });
       }
