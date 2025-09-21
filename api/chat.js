@@ -16,11 +16,25 @@ export default async function handler(req, res) {
     if (ai === "grok") {
       const GROQ_API_KEY = process.env.GROQ_API_KEY;
       if (!GROQ_API_KEY) {
-        return res.status(500).json({ error: "GROQ_API_KEY not set" });
+        console.error("GROQ_API_KEY environment variable not set");
+        return res.status(500).json({ error: "GROQ_API_KEY not configured" });
       }
+      
+      // Ensure we're using the correct Groq endpoint and model
       url = "https://api.groq.com/openai/v1/chat/completions";
       headers.Authorization = `Bearer ${GROQ_API_KEY}`;
-      requestBody = JSON.stringify(payload);
+      
+      // Use a known working Groq model
+      const groqPayload = {
+        ...payload,
+        model: "llama-3.1-70b-versatile", // Confirmed working model
+        temperature: payload.temperature || 0.7,
+        max_tokens: payload.max_tokens || 4000,
+        stream: false
+      };
+      
+      requestBody = JSON.stringify(groqPayload);
+      
     } else if (ai === "gemini") {
       const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
       if (!GEMINI_API_KEY) {
@@ -61,9 +75,13 @@ export default async function handler(req, res) {
       
       url = `https://generativelanguage.googleapis.com/v1beta/models/${payload.model}:generateContent?key=${GEMINI_API_KEY}`;
       requestBody = JSON.stringify(geminiPayload);
+      
     } else {
       return res.status(400).json({ error: "Unknown AI selected" });
     }
+
+    console.log(`Making ${ai} API request to:`, url);
+    console.log(`Using model:`, ai === "grok" ? "llama-3.1-70b-versatile" : payload.model);
 
     const response = await fetch(url, { 
       method: "POST", 
@@ -78,6 +96,7 @@ export default async function handler(req, res) {
       responseData = JSON.parse(responseText);
     } catch (parseError) {
       console.error("Failed to parse response JSON:", parseError);
+      console.error("Response text:", responseText.substring(0, 500));
       return res.status(500).json({ 
         error: "Invalid JSON response from AI service",
         details: responseText.substring(0, 200)
@@ -85,9 +104,18 @@ export default async function handler(req, res) {
     }
 
     if (!response.ok) {
-      console.error(`AI API Error (${response.status}):`, responseData);
+      console.error(`${ai} API Error (${response.status}):`, responseData);
+      
+      // Handle specific Groq error cases
+      if (ai === "grok" && response.status === 401) {
+        return res.status(401).json({ 
+          error: "Authentication failed with Groq API",
+          details: "Please check your GROQ_API_KEY in environment variables"
+        });
+      }
+      
       return res.status(response.status).json({ 
-        error: "AI service error",
+        error: `${ai} service error`,
         details: responseData.error?.message || responseData.error || "Unknown error"
       });
     }
@@ -116,6 +144,7 @@ export default async function handler(req, res) {
     }
 
     // For Groq (OpenAI format), return as-is
+    console.log(`${ai} API request successful`);
     return res.status(200).json(responseData);
 
   } catch (err) {
