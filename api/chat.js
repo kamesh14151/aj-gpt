@@ -27,7 +27,7 @@ export default async function handler(req, res) {
       // Use the working Groq model
       const groqPayload = {
         ...payload,
-        model: "llama-3.1-70b-versatile", // Confirmed working model
+        model: "llama-3.3-70b-versatile", // Confirmed working model
         temperature: payload.temperature || 0.7,
         max_tokens: payload.max_tokens || 4000,
         stream: false
