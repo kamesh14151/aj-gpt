@@ -9,6 +9,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
 <style>
 :root {
   --primary: #6366f1;
@@ -177,7 +179,7 @@ body {
   padding: 16px 24px;
   border-bottom: 1px solid var(--border);
   display: flex;
-  justify-content: center; /* Centers items if no flex-grow, or helps with title */
+  justify-content: center;
   align-items: center;
   background: var(--bg-secondary);
   position: relative;
@@ -186,8 +188,8 @@ body {
   font-size: 16px;
   font-weight: 500;
   text-align: center;
-  flex-grow: 1; /* Allow it to take space and assist centering */
-  margin-left: 50px; /* Offset for mobile menu button */
+  flex-grow: 1;
+  margin-left: 50px;
 }
 .chat-actions {
   position: absolute;
@@ -312,12 +314,11 @@ body {
 .message.user .message-avatar {
   background: var(--primary);
 }
-/* Updated AI avatar selectors to grok/gemini */
 .message.ai.grok .message-avatar {
-  background: var(--flash-color); /* Groq (AJ-GPT-flash) uses flash-color */
+  background: var(--flash-color);
 }
 .message.ai.gemini .message-avatar {
-  background: var(--mini-color); /* Gemini (AJ-GPT-mini) uses mini-color */
+  background: var(--mini-color);
 }
 
 .message-content {
@@ -560,11 +561,11 @@ body {
   justify-content: center;
 }
 
-/* Model Selector Modal (Now top right) */
+/* Model Selector Modal */
 .model-selector-modal {
   display: none;
-  position: absolute; /* Changed to absolute to be relative to nearest positioned ancestor (chat-header) */
-  top: 60px; /* Position below the header */
+  position: absolute;
+  top: 60px;
   right: 24px;
   width: 280px;
   background: var(--bg-secondary);
@@ -573,12 +574,12 @@ body {
   box-shadow: 0 10px 25px var(--shadow);
   z-index: 60;
   overflow: hidden;
-  animation: slideDown 0.3s ease-out; /* Changed animation direction */
+  animation: slideDown 0.3s ease-out;
 }
 @keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-20px); /* Slide down from above */
+    transform: translateY(-20px);
   }
   to {
     opacity: 1;
@@ -839,14 +840,13 @@ body {
     padding: 16px;
   }
 
-  /* Adjust chat title and actions for mobile */
   .chat-title {
-    margin-left: 0; /* Reset for mobile, as mobile-menu-btn moves to overlay */
-    text-align: center; /* Ensure it stays centered */
+    margin-left: 0;
+    text-align: center;
   }
   .chat-actions {
-    right: 16px; /* Keep consistent padding */
-    left: auto; /* Ensure it doesn't conflict with mobile-menu-btn */
+    right: 16px;
+    left: auto;
   }
 
   .chat-container {
@@ -865,21 +865,19 @@ body {
     grid-template-columns: 1fr;
   }
   
-  /* Model Selector Modal on mobile */
   .model-selector-modal {
-    top: 60px; /* Below the header */
-    right: 16px; /* Consistent padding */
+    top: 60px;
+    right: 16px;
     width: 240px;
   }
   
-  /* Mobile-specific improvements */
   .message-content {
     padding: 12px 16px;
-    max-width: calc(100% - 48px); /* Adjust max-width to leave space for avatar and gap */
-    width: fit-content; /* Allow content to shrink if short */
+    max-width: calc(100% - 48px);
+    width: fit-content;
   }
   .message.user .message-content {
-      margin-left: auto; /* Push user message to the right */
+      margin-left: auto;
   }
   
   .message-text {
@@ -935,105 +933,12 @@ body {
     bottom: 80px;
     padding: 10px 16px;
     font-size: 14px;
-    max-width: calc(100% - 32px); /* 100% minus padding on both sides */
+    max-width: calc(100% - 32px);
   }
 
-  /* Ensure text in code blocks wraps or scrolls horizontally */
   .code-content pre code {
-    white-space: pre-wrap; /* Allows long lines to wrap */
-    word-break: break-word; /* Breaks long words if necessary */
-  }
-}
-
-/* For even smaller screens like old iPhones (e.g., iPhone 5/SE) */
-@media (max-width: 480px) {
-  .sidebar {
-    width: 200px; /* Slightly narrower sidebar */
-    left: -200px;
-  }
-  .mobile-menu-btn {
-    top: 10px;
-    left: 10px;
-    width: 36px;
-    height: 36px;
-  }
-  .chat-header {
-    padding: 12px;
-  }
-  .chat-title {
-    font-size: 14px;
-  }
-  .chat-actions {
-    right: 10px; /* Adjust for smaller screens */
-    top: 50%;
-    transform: translateY(-50%);
-    gap: 4px; /* Smaller gap for very narrow screens */
-  }
-  .icon-btn {
-    width: 24px;
-    height: 24px;
-    font-size: 12px;
-  }
-  .chat-container {
-    padding: 10px;
-  }
-  .message {
-    gap: 10px;
-  }
-  .message-avatar {
-    width: 24px;
-    height: 24px;
-    font-size: 10px;
-  }
-  .message-content {
-    padding: 10px 12px;
-    font-size: 13px;
-    max-width: calc(100% - 34px); /* Smaller adjustment for even narrower screens */
-  }
-  .message-text {
-    font-size: 14px;
-  }
-  .input-area {
-    padding: 10px;
-  }
-  .input-field {
-    padding: 12px 40px 12px 12px;
-    font-size: 14px;
-    min-height: 48px;
-  }
-  .input-actions, .send-button {
-    right: 8px;
-    bottom: 8px;
-    width: 24px;
-    height: 24px;
-    font-size: 12px;
-  }
-  /* Model Selector Modal on very small mobile */
-  .model-selector-modal {
-    top: 50px; /* Adjust again for smaller header */
-    right: 10px;
-    width: 220px;
-  }
-  .welcome-title {
-    font-size: 20px;
-  }
-  .welcome-subtitle {
-    font-size: 16px;
-  }
-  .example-prompts {
-    gap: 10px;
-  }
-  .example-prompt {
-    padding: 10px;
-  }
-  .settings-title {
-    font-size: 18px;
-  }
-  .settings-section-title {
-    font-size: 15px;
-  }
-  .settings-label, .settings-select {
-    font-size: 13px;
+    white-space: pre-wrap;
+    word-break: break-word;
   }
 }
 </style>
@@ -1229,10 +1134,12 @@ body {
     </div>
   </div>
 </div>
+
 <!-- Toast Notification -->
 <div class="toast" id="toast">
   <span id="toastMessage"></span>
 </div>
+
 <script>
 // DOM Elements
 const sidebar = document.getElementById('sidebar');
@@ -1246,14 +1153,13 @@ const messageInput = document.getElementById('messageInput');
 const sendBtn = document.getElementById('sendBtn');
 const settingsModal = document.getElementById('settingsModal');
 const closeSettings = document.getElementById('closeSettings');
-// Renamed from floatingModelBtn
 const modelSelectBtnInHeader = document.getElementById('modelSelectBtnInHeader'); 
 const modelSelectorModal = document.getElementById('modelSelectorModal');
 const searchInput = document.getElementById('searchInput');
-const chatHistoryElement = document.getElementById('chatHistory'); // Renamed to avoid conflict
+const chatHistoryElement = document.getElementById('chatHistory');
 const toast = document.getElementById('toast');
 const toastMessage = document.getElementById('toastMessage');
-const clearChatBtn = document.getElementById('clearChatBtn'); // Added clear chat button
+const clearChatBtn = document.getElementById('clearChatBtn');
 
 // State Variables
 let allChats = JSON.parse(localStorage.getItem('ajstudiozAllChats') || '[]');
@@ -1263,19 +1169,16 @@ let typingAnimationEnabled = true;
 let soundEnabled = false;
 let responseLength = 'medium';
 let fontSize = '16px';
-// Added missing variables
 let selectedAI = 'grok';
 let selectedAIName = 'AJ-GPT-flash';
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-  loadSettings(); // Load settings first
+  loadSettings();
   if (allChats.length === 0) {
-    createNewChat(); // Start a new chat if no history exists
+    createNewChat();
   } else {
-    // Attempt to load the last active chat, or the first one
     selectedChatId = localStorage.getItem('ajstudiozLastChatId') || allChats[0].id;
-    // Ensure selectedChatId actually exists in allChats, fallback to first if not
     if (!allChats.some(chat => chat.id === selectedChatId)) {
         selectedChatId = allChats[0].id;
     }
@@ -1284,17 +1187,14 @@ document.addEventListener('DOMContentLoaded', () => {
   renderMessages();
   setupEventListeners();
 
-  // Set initial active state for model selector based on the current chat's model
   const currentChat = allChats.find(chat => chat.id === selectedChatId);
   if (currentChat) {
-    // Set global model variables
     selectedAI = currentChat.model;
     selectedAIName = currentChat.model === 'grok' ? 'AJ-GPT-flash' : 'AJ-GPT-mini';
     
-    const defaultModelOption = document.querySelector(`.model-modal-option[data-model="${currentChat.model}"]`);
-    if (defaultModelOption) {
-      defaultModelOption.classList.add('active');
-    }
+    document.querySelectorAll('.model-modal-option').forEach(option => {
+      option.classList.toggle('active', option.dataset.model === currentChat.model);
+    });
   }
 });
 
@@ -1305,7 +1205,6 @@ function getCurrentChat() {
 
 // Setup Event Listeners
 function setupEventListeners() {
-  // Mobile menu toggle
   mobileMenuBtn.addEventListener('click', () => {
     sidebar.classList.toggle('open');
     sidebarOverlay.classList.toggle('show');
@@ -1316,10 +1215,8 @@ function setupEventListeners() {
     sidebarOverlay.classList.remove('show');
   });
   
-  // New chat
   newChatBtn.addEventListener('click', createNewChat);
   
-  // Settings
   settingsBtn.addEventListener('click', () => {
     settingsModal.style.display = 'flex';
   });
@@ -1328,7 +1225,6 @@ function setupEventListeners() {
     settingsModal.style.display = 'none';
   });
   
-  // Send message
   sendBtn.addEventListener('click', sendMessage);
   messageInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -1337,7 +1233,6 @@ function setupEventListeners() {
     }
   });
 
-  // Clear chat
   clearChatBtn.addEventListener('click', () => {
     if (confirm('Are you sure you want to clear this conversation?')) {
         const currentChat = getCurrentChat();
@@ -1350,29 +1245,25 @@ function setupEventListeners() {
     }
   });
   
-  // Model selection button in header
   modelSelectBtnInHeader.addEventListener('click', (event) => {
-    event.stopPropagation(); // Prevent click from bubbling to window and closing immediately
+    event.stopPropagation();
     modelSelectorModal.style.display = modelSelectorModal.style.display === 'block' ? 'none' : 'block';
   });
   
-  // Model modal options
   document.querySelectorAll('.model-modal-option').forEach(option => {
     option.addEventListener('click', () => {
-      const modelIdentifier = option.dataset.model; // 'grok' or 'gemini'
+      const modelIdentifier = option.dataset.model;
       const name = option.dataset.name;
       selectAI(modelIdentifier, name);
       modelSelectorModal.style.display = 'none';
     });
   });
   
-  // Search functionality
   searchInput.addEventListener('input', (e) => {
     const searchTerm = e.target.value.toLowerCase();
     filterChatHistory(searchTerm);
   });
   
-  // Settings controls
   document.getElementById('darkModeToggle').addEventListener('click', () => {
     darkMode = !darkMode;
     document.getElementById('darkModeToggle').classList.toggle('active', darkMode);
@@ -1393,7 +1284,6 @@ function setupEventListeners() {
     saveSettings();
   });
   
-  // Settings buttons
   document.getElementById('saveSettings').addEventListener('click', () => {
     responseLength = document.getElementById('responseLength').value;
     fontSize = document.getElementById('fontSize').value;
@@ -1411,12 +1301,10 @@ function setupEventListeners() {
     }
   });
   
-  // Close modals when clicking outside
   window.addEventListener('click', (event) => {
     if (event.target === settingsModal) {
       settingsModal.style.display = 'none';
     }
-    // Only close model selector modal if click is outside both the button AND the modal itself
     if (!modelSelectBtnInHeader.contains(event.target) && !modelSelectorModal.contains(event.target)) {
       modelSelectorModal.style.display = 'none';
     }
@@ -1500,19 +1388,18 @@ function saveAllChats() {
 
 // Create a new chat conversation
 function createNewChat() {
-    // Save current chat before creating a new one
     if (selectedChatId) {
         saveAllChats(); 
     }
 
     const newChat = {
-        id: crypto.randomUUID(), // Generate a unique ID for the chat
+        id: crypto.randomUUID(),
         title: "New Conversation",
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        model: selectedAI, // Use the currently selected model
+        model: selectedAI,
         messages: []
     };
-    allChats.unshift(newChat); // Add new chat to the beginning
+    allChats.unshift(newChat);
     selectedChatId = newChat.id;
     saveAllChats();
     renderChatHistory();
@@ -1522,19 +1409,17 @@ function createNewChat() {
 
 // Switch to a different chat
 function switchChat(chatId) {
-    if (selectedChatId === chatId) return; // No need to switch if already active
+    if (selectedChatId === chatId) return;
 
-    saveAllChats(); // Save current chat before switching
+    saveAllChats();
 
     selectedChatId = chatId;
-    localStorage.setItem('ajstudiozLastChatId', selectedChatId); // Remember last active chat
-    renderChatHistory(); // Re-render history to update active state
-    renderMessages(); // Render messages for the newly selected chat
+    localStorage.setItem('ajstudiozLastChatId', selectedChatId);
+    renderChatHistory();
+    renderMessages();
 
-    // Update active model in the modal
     const currentChat = getCurrentChat();
     if (currentChat) {
-        // Update global model variables
         selectedAI = currentChat.model;
         selectedAIName = currentChat.model === 'grok' ? 'AJ-GPT-flash' : 'AJ-GPT-mini';
         
@@ -1549,19 +1434,15 @@ function switchChat(chatId) {
 function selectAI(aiIdentifier, name) {
   const currentChat = getCurrentChat();
   if (currentChat) {
-    currentChat.model = aiIdentifier; // Update the model for the current chat
-    // Also update selectedAIName state for typing indicator and toast
+    currentChat.model = aiIdentifier;
     selectedAI = aiIdentifier;
     selectedAIName = name; 
-    saveAllChats(); // Persist the model change
+    saveAllChats();
   } else {
-    // If no chat is active (shouldn't happen with createNewChat on init),
-    // just update global state and show a toast.
     selectedAI = aiIdentifier; 
     selectedAIName = name;
   }
 
-  // Update active state in the modal
   document.querySelectorAll('.model-modal-option').forEach(option => {
     option.classList.toggle('active', option.dataset.model === aiIdentifier);
   });
@@ -1640,18 +1521,17 @@ function renderMessages() {
 
   if (!currentChat || currentChat.messages.length === 0) {
     welcomeScreen.style.display = 'block';
-    chatContainer.innerHTML = ''; // Clear existing messages
-    chatContainer.appendChild(welcomeScreen); // Re-add welcome screen
+    chatContainer.innerHTML = '';
+    chatContainer.appendChild(welcomeScreen);
     return;
   }
   
   welcomeScreen.style.display = 'none';
   
-  // Clear existing messages (only keep welcomeScreen if present)
   let existingWelcomeScreen = chatContainer.querySelector('.welcome-screen');
-  chatContainer.innerHTML = ''; // Clear all
+  chatContainer.innerHTML = '';
   if (existingWelcomeScreen) {
-      chatContainer.appendChild(existingWelcomeScreen); // Re-add if it was there
+      chatContainer.appendChild(existingWelcomeScreen);
   }
 
   currentChat.messages.forEach((msg, index) => {
@@ -1705,14 +1585,14 @@ function renderMessages() {
   chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-// Process Message Text to Handle Code Blocks
+// Process Message Text to Handle Code Blocks - FIXED VERSION
 function processMessageText(text) {
   let processedText = text;
   
-  processedText = processedText.replace(/```([^]+)```/g, '<code>$1</code>');
-  
-  processedText = processedText.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, language, code) => {
+  // First handle code blocks with language specification
+  processedText = processedText.replace(/```(\w+)?\n?([\s\S]*?)```/g, (match, language, code) => {
     const lang = language || 'text';
+    const trimmedCode = code.trim();
     return `
       <div class="code-block">
         <div class="code-header">
@@ -1722,28 +1602,16 @@ function processMessageText(text) {
           </button>
         </div>
         <div class="code-content">
-          <pre><code class="language-${lang}">${escapeHtml(code.trim())}</code></pre>
+          <pre><code class="language-${lang}">${escapeHtml(trimmedCode)}</code></pre>
         </div>
       </div>
     `;
   });
   
-  processedText = processedText.replace(/```([\s\S]*?)```/g, (match, code) => {
-    return `
-      <div class="code-block">
-        <div class="code-header">
-          <div class="code-language">text</div>
-          <button class="copy-code-btn" onclick="copyCode(this)">
-            <i class="fas fa-copy"></i> Copy
-          </button>
-        </div>
-        <div class="code-content">
-          <pre><code>${escapeHtml(code.trim())}</code></pre>
-        </div>
-      </div>
-    `;
-  });
+  // Handle inline code (backticks) - but avoid double processing
+  processedText = processedText.replace(/`([^`\n]+)`/g, '<code>$1</code>');
   
+  // Handle other markdown formatting
   processedText = processedText
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
@@ -1759,7 +1627,7 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-// Copy Code
+// Copy Code - FIXED VERSION
 function copyCode(button) {
   const codeBlock = button.closest('.code-block');
   const codeContent = codeBlock.querySelector('code').textContent;
@@ -1771,6 +1639,11 @@ function copyCode(button) {
     setTimeout(() => {
       button.innerHTML = originalHTML;
     }, 2000);
+    
+    showToast('Code copied to clipboard', 'success');
+  }).catch(err => {
+    console.error('Failed to copy code:', err);
+    showToast('Failed to copy code', 'error');
   });
 }
 
@@ -1779,7 +1652,6 @@ function createTypingIndicator() {
   const typingDiv = document.createElement('div');
   typingDiv.classList.add('typing-indicator');
   
-  // Get current chat's model name for the typing indicator
   const currentAIName = selectedAIName || 'AI';
 
   const typingText = document.createElement('span');
@@ -1809,7 +1681,7 @@ function quickPrompt(text) {
   sendMessage();
 }
 
-// Send Message
+// Send Message - FIXED VERSION
 async function sendMessage() {
   const message = messageInput.value.trim();
   if (!message) return;
@@ -1823,7 +1695,7 @@ async function sendMessage() {
   // Update chat title if it's "New Conversation" and this is the first message
   if (currentChat.messages.length === 0 && currentChat.title === "New Conversation") {
       currentChat.title = message.substring(0, 30) + (message.length > 30 ? "..." : "");
-      renderChatHistory(); // Update sidebar with new title
+      renderChatHistory();
   }
 
   // Add user message to current chat
@@ -1851,7 +1723,7 @@ async function sendMessage() {
       modelNameForPayload = 'llama-3.3-70b-versatile'; 
     } else if (currentChat.model === 'gemini') {
       backendAIIdentifier = 'gemini';
-      modelNameForPayload = 'gemini-2.5-flash'; 
+      modelNameForPayload = 'gemini-2.0-flash-exp'; // Updated to working Gemini model
     } else {
       console.error("Unknown AI selected in current chat:", currentChat.model);
       showToast('Error: Unknown AI model selected for this chat.', 'error');
@@ -1860,9 +1732,17 @@ async function sendMessage() {
       return;
     }
     
+    // Build conversation history for better context
+    const conversationHistory = currentChat.messages.slice(-6).map(msg => ({
+      role: msg.sender === 'user' ? 'user' : 'assistant',
+      content: msg.text
+    }));
+    
     const body = {
       model: modelNameForPayload,
-      messages: [{ role: 'user', content: message }]
+      messages: conversationHistory,
+      temperature: 0.7,
+      max_tokens: 2048
     };
     
     const response = await fetch('/api/chat', {
@@ -1882,14 +1762,13 @@ async function sendMessage() {
       let errorDetails = `API error ${response.status}`;
       try {
         const errorData = await response.json();
-        // Check for specific structures from Groq/Gemini errors
         if (errorData.error && typeof errorData.error === 'object' && errorData.error.message) {
             errorDetails += `: ${errorData.error.message}`;
-        } else if (errorData.error) { // General 'error' string
+        } else if (errorData.error) {
             errorDetails += `: ${errorData.error}`;
-        } else if (errorData.details) { // Custom backend error details
+        } else if (errorData.details) {
             errorDetails += `: ${errorData.details}`;
-        } else { // Fallback to entire response text
+        } else {
             errorDetails += `: ${JSON.stringify(errorData)}`;
         }
       } catch (jsonError) {
@@ -1938,9 +1817,8 @@ async function sendMessage() {
   }
 }
 
-// Render Typing Message (for the last message added to current chat)
+// Render Typing Message
 async function renderTypingMessage(aiMessage) {
-  // Clear only the typing indicator if present, don't re-render all messages
   const existingTypingIndicator = chatContainer.querySelector('.typing-indicator');
   if (existingTypingIndicator) existingTypingIndicator.remove();
 
