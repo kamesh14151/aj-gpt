@@ -32,6 +32,9 @@
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --code-bg: #1e293b;
   --code-border: #334155;
+  --h1-color: #a5b4fc;
+  --h2-color: #c7d2fe;
+  --h3-color: #e0e7ff;
 }
 * {
   margin: 0;
@@ -354,6 +357,61 @@ body {
 .message-text a:hover {
   text-decoration: underline;
 }
+
+/* Enhanced Headings */
+.message-text h1 {
+  font-size: 1.8em;
+  color: var(--h1-color);
+  margin-top: 0.8em;
+  margin-bottom: 0.5em;
+  font-weight: 700;
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 0.3em;
+}
+.message-text h2 {
+  font-size: 1.5em;
+  color: var(--h2-color);
+  margin-top: 0.7em;
+  margin-bottom: 0.4em;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.2em;
+}
+.message-text h3 {
+  font-size: 1.2em;
+  color: var(--h3-color);
+  margin-top: 0.6em;
+  margin-bottom: 0.3em;
+  font-weight: 600;
+}
+
+/* Table Styles */
+.message-text table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 14px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.message-text th, .message-text td {
+  border: 1px solid var(--border);
+  padding: 12px;
+  text-align: left;
+}
+.message-text th {
+  background-color: var(--bg-tertiary);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.message-text tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+.message-text tr:hover {
+  background-color: rgba(99, 102, 241, 0.1);
+}
+
 /* Code blocks */
 .code-block {
   background: var(--code-bg);
@@ -361,6 +419,7 @@ body {
   border-radius: 8px;
   margin: 12px 0;
   overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 .code-header {
   display: flex;
@@ -375,7 +434,11 @@ body {
   color: var(--text-secondary);
   text-transform: uppercase;
 }
-.copy-code-btn {
+.code-actions {
+  display: flex;
+  gap: 8px;
+}
+.copy-code-btn, .preview-code-btn {
   background: transparent;
   border: none;
   color: var(--text-secondary);
@@ -388,7 +451,7 @@ body {
   border-radius: 4px;
   transition: var(--transition);
 }
-.copy-code-btn:hover {
+.copy-code-btn:hover, .preview-code-btn:hover {
   background: var(--bg-primary);
   color: var(--text-primary);
 }
@@ -401,6 +464,19 @@ body {
   font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
   font-size: 14px;
   line-height: 1.5;
+}
+.code-preview {
+  display: none;
+  padding: 12px;
+  background: var(--bg-primary);
+  border-top: 1px solid var(--code-border);
+}
+.code-preview iframe {
+  width: 100%;
+  height: 200px;
+  border: none;
+  border-radius: 4px;
+  background: white;
 }
 .message-text code {
   background: var(--bg-primary);
@@ -939,6 +1015,25 @@ body {
   .code-content pre code {
     white-space: pre-wrap;
     word-break: break-word;
+  }
+  
+  /* Mobile table adjustments */
+  .message-text table {
+    font-size: 12px;
+  }
+  .message-text th, .message-text td {
+    padding: 8px;
+  }
+  
+  /* Mobile heading adjustments */
+  .message-text h1 {
+    font-size: 1.5em;
+  }
+  .message-text h2 {
+    font-size: 1.3em;
+  }
+  .message-text h3 {
+    font-size: 1.1em;
   }
 }
 </style>
@@ -1585,7 +1680,7 @@ function renderMessages() {
   chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-// Process Message Text to Handle Code Blocks - FIXED VERSION
+// Process Message Text to Handle Code Blocks, Tables, and Headings
 function processMessageText(text) {
   let processedText = text;
   
@@ -1597,18 +1692,55 @@ function processMessageText(text) {
       <div class="code-block">
         <div class="code-header">
           <div class="code-language">${lang}</div>
-          <button class="copy-code-btn" onclick="copyCode(this)">
-            <i class="fas fa-copy"></i> Copy
-          </button>
+          <div class="code-actions">
+            <button class="copy-code-btn" onclick="copyCode(this)">
+              <i class="fas fa-copy"></i> Copy
+            </button>
+            <button class="preview-code-btn" onclick="toggleCodePreview(this)">
+              <i class="fas fa-eye"></i> Preview
+            </button>
+          </div>
         </div>
         <div class="code-content">
           <pre><code class="language-${lang}">${escapeHtml(trimmedCode)}</code></pre>
         </div>
+        <div class="code-preview"></div>
       </div>
     `;
   });
   
-  // Handle inline code (backticks) - but avoid double processing
+  // Handle markdown tables
+  processedText = processedText.replace(/(\|.+?\|\s*\n\|[\s\-\|]+\|\s*\n(\|.+?\|\s*\n)+)/g, (match) => {
+    const lines = match.trim().split('\n');
+    // Remove the separator line (second line)
+    lines.splice(1, 1);
+    let html = '<table>';
+    lines.forEach((line, index) => {
+      const cells = line.split('|').filter(cell => cell.trim() !== '');
+      if (index === 0) {
+        html += '<thead><tr>';
+        cells.forEach(cell => {
+          html += `<th>${cell.trim()}</th>`;
+        });
+        html += '</tr></thead><tbody>';
+      } else {
+        html += '<tr>';
+        cells.forEach(cell => {
+          html += `<td>${cell.trim()}</td>`;
+        });
+        html += '</tr>';
+      }
+    });
+    html += '</tbody></table>';
+    return html;
+  });
+  
+  // Handle headings (h1, h2, h3)
+  processedText = processedText.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+  processedText = processedText.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+  processedText = processedText.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+  
+  // Handle inline code (backticks)
   processedText = processedText.replace(/`([^`\n]+)`/g, '<code>$1</code>');
   
   // Handle other markdown formatting
@@ -1627,7 +1759,7 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-// Copy Code - FIXED VERSION
+// Copy Code
 function copyCode(button) {
   const codeBlock = button.closest('.code-block');
   const codeContent = codeBlock.querySelector('code').textContent;
@@ -1645,6 +1777,36 @@ function copyCode(button) {
     console.error('Failed to copy code:', err);
     showToast('Failed to copy code', 'error');
   });
+}
+
+// Toggle Code Preview
+function toggleCodePreview(button) {
+  const codeBlock = button.closest('.code-block');
+  const codeContent = codeBlock.querySelector('code').textContent;
+  const previewDiv = codeBlock.querySelector('.code-preview');
+  const language = codeBlock.querySelector('.code-language').textContent.toLowerCase();
+  
+  if (previewDiv.style.display === 'none' || !previewDiv.style.display) {
+    // Show preview
+    if (language === 'html') {
+      // For HTML, create an iframe
+      previewDiv.innerHTML = `<iframe srcdoc="${escapeHtml(codeContent)}"></iframe>`;
+    } else {
+      // For other languages, show a formatted preview
+      previewDiv.innerHTML = `
+        <div style="background: var(--bg-primary); padding: 12px; border-radius: 8px; font-family: monospace; white-space: pre-wrap; overflow-x: auto;">
+          ${escapeHtml(codeContent)}
+        </div>
+      `;
+    }
+    
+    previewDiv.style.display = 'block';
+    button.innerHTML = '<i class="fas fa-eye-slash"></i> Hide';
+  } else {
+    // Hide preview
+    previewDiv.style.display = 'none';
+    button.innerHTML = '<i class="fas fa-eye"></i> Preview';
+  }
 }
 
 // Create Typing Indicator
@@ -1681,7 +1843,7 @@ function quickPrompt(text) {
   sendMessage();
 }
 
-// Send Message - FIXED VERSION
+// Send Message
 async function sendMessage() {
   const message = messageInput.value.trim();
   if (!message) return;
@@ -1723,7 +1885,7 @@ async function sendMessage() {
       modelNameForPayload = 'llama-3.3-70b-versatile'; 
     } else if (currentChat.model === 'gemini') {
       backendAIIdentifier = 'gemini';
-      modelNameForPayload = 'gemini-2.0-flash-exp'; // Updated to working Gemini model
+      modelNameForPayload = 'gemini-2.0-flash-exp';
     } else {
       console.error("Unknown AI selected in current chat:", currentChat.model);
       showToast('Error: Unknown AI model selected for this chat.', 'error');
