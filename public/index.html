@@ -1218,7 +1218,6 @@ body {
               <option value="14px">Small</option>
               <option value="16px" selected>Medium</option>
               <option value="18px">Large</option>
-            </option>
             </select>
           </div>
         </div>
@@ -1264,6 +1263,9 @@ let typingAnimationEnabled = true;
 let soundEnabled = false;
 let responseLength = 'medium';
 let fontSize = '16px';
+// Added missing variables
+let selectedAI = 'grok';
+let selectedAIName = 'AJ-GPT-flash';
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -1285,7 +1287,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // Set initial active state for model selector based on the current chat's model
   const currentChat = allChats.find(chat => chat.id === selectedChatId);
   if (currentChat) {
-    const defaultModelOption = document.querySelector(.model-modal-option[data-model="${currentChat.model}"]);
+    // Set global model variables
+    selectedAI = currentChat.model;
+    selectedAIName = currentChat.model === 'grok' ? 'AJ-GPT-flash' : 'AJ-GPT-mini';
+    
+    const defaultModelOption = document.querySelector(`.model-modal-option[data-model="${currentChat.model}"]`);
     if (defaultModelOption) {
       defaultModelOption.classList.add('active');
     }
@@ -1503,7 +1509,7 @@ function createNewChat() {
         id: crypto.randomUUID(), // Generate a unique ID for the chat
         title: "New Conversation",
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        model: 'grok', // Default model for new chats
+        model: selectedAI, // Use the currently selected model
         messages: []
     };
     allChats.unshift(newChat); // Add new chat to the beginning
@@ -1527,10 +1533,16 @@ function switchChat(chatId) {
 
     // Update active model in the modal
     const currentChat = getCurrentChat();
-    document.querySelectorAll('.model-modal-option').forEach(option => {
-        option.classList.toggle('active', option.dataset.model === currentChat.model);
-    });
-    showToast(Switched to: ${currentChat.title}, 'info');
+    if (currentChat) {
+        // Update global model variables
+        selectedAI = currentChat.model;
+        selectedAIName = currentChat.model === 'grok' ? 'AJ-GPT-flash' : 'AJ-GPT-mini';
+        
+        document.querySelectorAll('.model-modal-option').forEach(option => {
+            option.classList.toggle('active', option.dataset.model === currentChat.model);
+        });
+    }
+    showToast(`Switched to: ${currentChat.title}`, 'info');
 }
 
 // Select AI (model for the current chat)
@@ -1539,6 +1551,7 @@ function selectAI(aiIdentifier, name) {
   if (currentChat) {
     currentChat.model = aiIdentifier; // Update the model for the current chat
     // Also update selectedAIName state for typing indicator and toast
+    selectedAI = aiIdentifier;
     selectedAIName = name; 
     saveAllChats(); // Persist the model change
   } else {
@@ -1552,7 +1565,7 @@ function selectAI(aiIdentifier, name) {
   document.querySelectorAll('.model-modal-option').forEach(option => {
     option.classList.toggle('active', option.dataset.model === aiIdentifier);
   });
-  showToast(Selected AI for this chat: ${name}, 'info');
+  showToast(`Selected AI for this chat: ${name}`, 'info');
 }
 
 // Show Toast Notification
@@ -1696,9 +1709,9 @@ function renderMessages() {
 function processMessageText(text) {
   let processedText = text;
   
-  processedText = processedText.replace(/([^]+)`/g, '<code>$1</code>');
+  processedText = processedText.replace(/```([^]+)```/g, '<code>$1</code>');
   
-  processedText = processedText.replace(/(\w+)?\n([\s\S]*?)/g, (match, language, code) => {
+  processedText = processedText.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, language, code) => {
     const lang = language || 'text';
     return `
       <div class="code-block">
@@ -1715,7 +1728,7 @@ function processMessageText(text) {
     `;
   });
   
-  processedText = processedText.replace(/([\s\S]*?)/g, (match, code) => {
+  processedText = processedText.replace(/```([\s\S]*?)```/g, (match, code) => {
     return `
       <div class="code-block">
         <div class="code-header">
@@ -1732,8 +1745,8 @@ function processMessageText(text) {
   });
   
   processedText = processedText
-    .replace(/\\(.?)\\*/g, '<strong>$1</strong>')
-    .replace(/\(.?)\*/g, '<em>$1</em>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
     .replace(/\n/g, '<br>');
   
   return processedText;
@@ -1767,8 +1780,7 @@ function createTypingIndicator() {
   typingDiv.classList.add('typing-indicator');
   
   // Get current chat's model name for the typing indicator
-  const currentChat = getCurrentChat();
-  const currentAIName = currentChat ? currentChat.model === 'grok' ? 'AJ-GPT-flash' : 'AJ-GPT-mini' : 'AI';
+  const currentAIName = selectedAIName || 'AI';
 
   const typingText = document.createElement('span');
   typingText.textContent = currentAIName + ' is typing';
@@ -1867,21 +1879,21 @@ async function sendMessage() {
     typingIndicator.remove();
     
     if (!response.ok) {
-      let errorDetails = API error ${response.status};
+      let errorDetails = `API error ${response.status}`;
       try {
         const errorData = await response.json();
         // Check for specific structures from Groq/Gemini errors
         if (errorData.error && typeof errorData.error === 'object' && errorData.error.message) {
-            errorDetails += : ${errorData.error.message};
+            errorDetails += `: ${errorData.error.message}`;
         } else if (errorData.error) { // General 'error' string
-            errorDetails += : ${errorData.error};
+            errorDetails += `: ${errorData.error}`;
         } else if (errorData.details) { // Custom backend error details
-            errorDetails += : ${errorData.details};
+            errorDetails += `: ${errorData.details}`;
         } else { // Fallback to entire response text
-            errorDetails += : ${JSON.stringify(errorData)};
+            errorDetails += `: ${JSON.stringify(errorData)}`;
         }
       } catch (jsonError) {
-        errorDetails += : ${await response.text()}; 
+        errorDetails += `: ${await response.text()}`; 
       }
       throw new Error(errorDetails);
     }
@@ -1913,7 +1925,7 @@ async function sendMessage() {
     
     currentChat.messages.push({
       sender: 'ai',
-      text: Sorry, I encountered an error while processing your request. Please try again later. Details: ${displayErrorMessage},
+      text: `Sorry, I encountered an error while processing your request. Please try again later. Details: ${displayErrorMessage}`,
       timestamp: formatTimestamp(),
       aiType: currentChat.model 
     });
