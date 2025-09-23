@@ -52,8 +52,8 @@ export default async function handler(req, res) {
 
     // Combine responses intelligently
     if (claudeText && geminiText) {
-      // If both responses are available, create a structured combined response
-      combinedText = `**Combined AI Response**\n\n**Claude's Analysis:**\n${claudeText}\n\n**Gemini's Insights:**\n${geminiText}\n\n**Synthesized Answer:**\n${synthesizeResponses(claudeText, geminiText)}`;
+      // If both responses are available, create a synthesized response
+      combinedText = synthesizeResponses(claudeText, geminiText);
     } else {
       // If only one response is available, use that
       combinedText = claudeText || geminiText;
@@ -162,19 +162,24 @@ function synthesizeResponses(claudeText, geminiText) {
   const claudePoints = claudeText.split('\n').filter(p => p.trim());
   const geminiPoints = geminiText.split('\n').filter(p => p.trim());
   
-  let synthesis = "Based on both AI models' analyses:\n\n";
+  // Create a unified response that blends both perspectives
+  let synthesis = "";
   
-  // Add unique points from Claude
-  synthesis += "Key points from Claude:\n";
-  claudePoints.slice(0, 3).forEach(point => {
-    synthesis += `• ${point}\n`;
-  });
+  // Start with a unified introduction
+  synthesis += "I've analyzed your request using multiple AI perspectives to provide a comprehensive response.\n\n";
   
-  // Add unique points from Gemini
-  synthesis += "\nKey points from Gemini:\n";
-  geminiPoints.slice(0, 3).forEach(point => {
-    synthesis += `• ${point}\n`;
-  });
+  // Add the main content from both models
+  if (claudeText.length > geminiText.length) {
+    synthesis += claudeText;
+    if (geminiText && geminiText !== "[Gemini response unavailable]") {
+      synthesis += "\n\n**Additional insights:**\n" + geminiText;
+    }
+  } else {
+    synthesis += geminiText;
+    if (claudeText && claudeText !== "[Claude response unavailable]") {
+      synthesis += "\n\n**Additional insights:**\n" + claudeText;
+    }
+  }
   
   return synthesis;
 }
