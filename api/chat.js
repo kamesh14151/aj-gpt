@@ -4,202 +4,70 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { ai, payload } = req.body;
-    if (!ai || !payload) {
-      return res.status(400).json({ error: "Missing ai or payload" });
+    const { messages, options } = req.body;
+    if (!messages || !options) {
+      return res.status(400).json({ error: "Missing messages or options" });
     }
 
-    let url = "";
-    let headers = { "Content-Type": "application/json" };
-    let requestBody;
-    let modelUsed; // Track the model being used
-
-    if (ai === "grok") {
-      const GROQ_API_KEY = process.env.GROQ_API_KEY;
-      if (!GROQ_API_KEY) {
-        console.error("GROQ_API_KEY environment variable not set");
-        return res.status(500).json({ error: "GROQ_API_KEY not configured" });
-      }
-      
-      // Use the Groq endpoint and model
-      url = "https://api.groq.com/openai/v1/chat/completions";
-      headers.Authorization = `Bearer ${GROQ_API_KEY}`;
-      
-      // Use the working Groq model
-      const groqPayload = {
-        ...payload,
-        model: "llama-3.3-70b-versatile", // Confirmed working model
-        temperature: payload.temperature || 0.7,
-        max_tokens: payload.max_tokens || 4000,
-        stream: false
-      };
-      
-      requestBody = JSON.stringify(groqPayload);
-      modelUsed = "llama-3.3-70b-versatile"; // Track the actual model
-      
-    } else if (ai === "gemini") {
-      const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-      if (!GEMINI_API_KEY) {
-        return res.status(500).json({ error: "GEMINI_API_KEY not set" });
-      }
-      
-      // Transform the payload for Gemini API format
-      const geminiPayload = {
-        contents: payload.messages.map(msg => ({
-          role: msg.role === 'assistant' ? 'model' : 'user',
-          parts: [{ text: msg.content }]
-        })),
-        generationConfig: {
-          temperature: payload.temperature || 0.7,
-          topK: 1,
-          topP: 1,
-          maxOutputTokens: payload.max_tokens || 2048,
-        },
-        safetySettings: [
-          {
-            category: "HARM_CATEGORY_HARASSMENT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          },
-          {
-            category: "HARM_CATEGORY_HATE_SPEECH",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          },
-          {
-            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          },
-          {
-            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          }
-        ]
-      };
-      
-      url = `https://generativelanguage.googleapis.com/v1beta/models/${payload.model}:generateContent?key=${GEMINI_API_KEY}`;
-      requestBody = JSON.stringify(geminiPayload);
-      modelUsed = payload.model; // Track the actual model
-      
-    } else if (ai === "claude") {
-      const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-      if (!ANTHROPIC_API_KEY) {
-        return res.status(500).json({ error: "ANTHROPIC_API_KEY not set" });
-      }
-      
-      // Transform the payload for Anthropic API format
-      const anthropicPayload = {
-        model: payload.model || "claude-sonnet-4-20250514",
-        max_tokens: payload.max_tokens || 1024,
-        messages: payload.messages.map(msg => ({
-          role: msg.role,
-          content: msg.content
-        }))
-      };
-      
-      url = "https://api.anthropic.com/v1/messages";
-      headers = {
-        "Content-Type": "application/json",
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01"
-      };
-      
-      requestBody = JSON.stringify(anthropicPayload);
-      modelUsed = payload.model || "claude-sonnet-4-20250514"; // Track the actual model
-      
-    } else {
-      return res.status(400).json({ error: "Unknown AI selected" });
-    }
-
-    console.log(`Making ${ai} API request to:`, url);
-    console.log(`Using model:`, modelUsed); // Use tracked model variable
-
-    const response = await fetch(url, { 
-      method: "POST", 
-      headers, 
-      body: requestBody 
-    });
-
-    const responseText = await response.text();
-    let responseData;
+    // Get API keys from environment variables
+    const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
     
-    try {
-      responseData = JSON.parse(responseText);
-    } catch (parseError) {
-      console.error("Failed to parse response JSON:", parseError);
-      console.error("Response text:", responseText.substring(0, 500));
-      return res.status(500).json({ 
-        error: "Invalid JSON response from AI service",
-        details: responseText.substring(0, 200)
-      });
+    if (!ANTHROPIC_API_KEY || !GEMINI_API_KEY) {
+      return res.status(500).json({ error: "API keys not configured" });
     }
 
-    if (!response.ok) {
-      console.error(`${ai} API Error (${response.status}):`, responseData);
-      
-      // Handle specific error cases
-      if (ai === "grok" && response.status === 401) {
-        return res.status(401).json({ 
-          error: "Authentication failed with Groq API",
-          details: "Please check your GROQ_API_KEY in environment variables"
-        });
-      } else if (ai === "claude" && response.status === 401) {
-        return res.status(401).json({ 
-          error: "Authentication failed with Anthropic API",
-          details: "Please check your ANTHROPIC_API_KEY in environment variables"
-        });
-      }
-      
-      return res.status(response.status).json({ 
-        error: `${ai} service error`,
-        details: responseData.error?.message || responseData.error || "Unknown error"
-      });
+    // Prepare the prompt for both models
+    const lastMessage = messages[messages.length - 1];
+    const prompt = lastMessage.content;
+
+    // Create requests for both models
+    const claudeRequest = fetchClaudeResponse(messages, options, ANTHROPIC_API_KEY);
+    const geminiRequest = fetchGeminiResponse(messages, options, GEMINI_API_KEY);
+
+    // Execute both requests in parallel
+    const [claudeResponse, geminiResponse] = await Promise.allSettled([
+      claudeRequest,
+      geminiRequest
+    ]);
+
+    // Process responses
+    let claudeText = "";
+    let geminiText = "";
+    let combinedText = "";
+
+    if (claudeResponse.status === "fulfilled" && claudeResponse.value) {
+      claudeText = claudeResponse.value;
+    } else {
+      console.error("Claude API error:", claudeResponse.reason);
+      claudeText = "[Claude response unavailable]";
     }
 
-    // Transform Gemini and Claude responses to match OpenAI format for consistency
-    if (ai === "gemini") {
-      if (responseData.candidates && responseData.candidates[0]?.content?.parts?.[0]?.text) {
-        const transformedResponse = {
-          choices: [
-            {
-              message: {
-                content: responseData.candidates[0].content.parts[0].text,
-                role: "assistant"
-              }
-            }
-          ]
-        };
-        return res.status(200).json(transformedResponse);
-      } else {
-        console.error("Unexpected Gemini response format:", responseData);
-        return res.status(500).json({ 
-          error: "Unexpected response format from Gemini",
-          details: JSON.stringify(responseData).substring(0, 200)
-        });
-      }
-    } else if (ai === "claude") {
-      if (responseData.content && responseData.content[0]?.text) {
-        const transformedResponse = {
-          choices: [
-            {
-              message: {
-                content: responseData.content[0].text,
-                role: "assistant"
-              }
-            }
-          ]
-        };
-        return res.status(200).json(transformedResponse);
-      } else {
-        console.error("Unexpected Anthropic response format:", responseData);
-        return res.status(500).json({ 
-          error: "Unexpected response format from Anthropic",
-          details: JSON.stringify(responseData).substring(0, 200)
-        });
-      }
+    if (geminiResponse.status === "fulfilled" && geminiResponse.value) {
+      geminiText = geminiResponse.value;
+    } else {
+      console.error("Gemini API error:", geminiResponse.reason);
+      geminiText = "[Gemini response unavailable]";
     }
 
-    // For Groq (OpenAI format), return as-is
-    console.log(`${ai} API request successful`);
-    return res.status(200).json(responseData);
+    // Combine responses intelligently
+    if (claudeText && geminiText) {
+      // If both responses are available, create a structured combined response
+      combinedText = `**Combined AI Response**\n\n**Claude's Analysis:**\n${claudeText}\n\n**Gemini's Insights:**\n${geminiText}\n\n**Synthesized Answer:**\n${synthesizeResponses(claudeText, geminiText)}`;
+    } else {
+      // If only one response is available, use that
+      combinedText = claudeText || geminiText;
+    }
+
+    // Return the combined response
+    return res.status(200).json({
+      choices: [{
+        message: {
+          content: combinedText,
+          role: "assistant"
+        }
+      }]
+    });
 
   } catch (err) {
     console.error("Server error in chat handler:", err);
@@ -208,4 +76,105 @@ export default async function handler(req, res) {
       details: err.message 
     });
   }
+}
+
+// Function to fetch Claude response
+async function fetchClaudeResponse(messages, options, apiKey) {
+  const anthropicPayload = {
+    model: "claude-3-sonnet-20240229",
+    max_tokens: options.length || 1024,
+    messages: messages.map(msg => ({
+      role: msg.role === 'assistant' ? 'assistant' : 'user',
+      content: msg.content
+    }))
+  };
+
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01"
+    },
+    body: JSON.stringify(anthropicPayload)
+  });
+
+  if (!response.ok) {
+    throw new Error(`Claude API Error: ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data.content[0].text;
+}
+
+// Function to fetch Gemini response
+async function fetchGeminiResponse(messages, options, apiKey) {
+  const geminiPayload = {
+    contents: messages.map(msg => ({
+      role: msg.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: msg.content }]
+    })),
+    generationConfig: {
+      temperature: options.creativity / 100 || 0.7,
+      topK: 1,
+      topP: 1,
+      maxOutputTokens: options.length || 2048,
+    },
+    safetySettings: [
+      {
+        category: "HARM_CATEGORY_HARASSMENT",
+        threshold: "BLOCK_MEDIUM_AND_ABOVE"
+      },
+      {
+        category: "HARM_CATEGORY_HATE_SPEECH",
+        threshold: "BLOCK_MEDIUM_AND_ABOVE"
+      },
+      {
+        category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+        threshold: "BLOCK_MEDIUM_AND_ABOVE"
+      },
+      {
+        category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+        threshold: "BLOCK_MEDIUM_AND_ABOVE"
+      }
+    ]
+  };
+
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=${apiKey}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(geminiPayload)
+  });
+
+  if (!response.ok) {
+    throw new Error(`Gemini API Error: ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data.candidates[0].content.parts[0].text;
+}
+
+// Function to synthesize responses from both models
+function synthesizeResponses(claudeText, geminiText) {
+  // Simple synthesis - in a real implementation, this could be more sophisticated
+  const claudePoints = claudeText.split('\n').filter(p => p.trim());
+  const geminiPoints = geminiText.split('\n').filter(p => p.trim());
+  
+  let synthesis = "Based on both AI models' analyses:\n\n";
+  
+  // Add unique points from Claude
+  synthesis += "Key points from Claude:\n";
+  claudePoints.slice(0, 3).forEach(point => {
+    synthesis += `• ${point}\n`;
+  });
+  
+  // Add unique points from Gemini
+  synthesis += "\nKey points from Gemini:\n";
+  geminiPoints.slice(0, 3).forEach(point => {
+    synthesis += `• ${point}\n`;
+  });
+  
+  return synthesis;
 }
