@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AJ STUDIOZ - Lynxa-AI Website Studio</title>
-    <meta name="description" content="AI-powered website creation studio with Lynxa-AI intelligence">
+    <title>AJ STUDIOZ - AI Website Studio</title>
+    <meta name="description" content="AI-powered website creation studio">
     <link rel="icon" type="image/png" href="https://z-cdn-media.chatglm.cn/files/b5adefdc-370b-43ab-bac7-7b5d02703e79_favicon.png?auth_key=1790181361-361cb6963d6543d7a58ce0880765a3c6-0-38da4cf767b6dab640a5a8aaf7605d27">
     
     <!-- Preload critical resources -->
@@ -180,77 +180,6 @@
             to {
                 opacity: 1;
                 transform: translateY(0);
-            }
-        }
-        
-        /* Connection Status Banner */
-        .connection-status {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            padding: 8px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            z-index: 1000;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-        }
-        
-        .connection-status.hidden {
-            transform: translateY(-100%);
-            opacity: 0;
-        }
-        
-        .connection-status.online {
-            background: rgba(16, 185, 129, 0.2);
-            color: var(--online-color);
-        }
-        
-        .connection-status.offline {
-            background: rgba(239, 68, 68, 0.2);
-            color: var(--offline-color);
-        }
-        
-        .connection-status.connecting {
-            background: rgba(245, 158, 11, 0.2);
-            color: var(--connecting-color);
-        }
-        
-        .connection-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 8px;
-        }
-        
-        .connection-indicator.online {
-            background: var(--online-color);
-            animation: pulse 2s infinite;
-        }
-        
-        .connection-indicator.offline {
-            background: var(--offline-color);
-        }
-        
-        .connection-indicator.connecting {
-            background: var(--connecting-color);
-            animation: pulse 1.5s infinite;
-        }
-        
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
-            }
-            70% {
-                box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
             }
         }
         
@@ -523,6 +452,18 @@
             animation: pulse 1.5s infinite;
         }
         
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+        
         .chat-actions {
             display: flex;
             gap: 14px;
@@ -727,6 +668,8 @@
             font-size: 16px;
             line-height: 1.7;
             color: var(--text-primary);
+            white-space: pre-wrap;
+            word-wrap: break-word;
         }
         
         .chat-message-text p {
@@ -1363,8 +1306,10 @@
             
             .chat-input-container {
                 padding: 20px;
-                position: sticky;
+                position: fixed;
                 bottom: 0;
+                left: 0;
+                right: 0;
                 background: var(--main-bg);
                 z-index: 10;
                 border-top: 1px solid var(--border-color);
@@ -1387,6 +1332,7 @@
             .chat-messages {
                 -webkit-overflow-scrolling: touch;
                 padding: 20px;
+                padding-bottom: 120px;
             }
             
             .chat-input-wrapper {
@@ -1416,61 +1362,113 @@
             .chat-input {
                 font-size: 16px;
                 padding: 16px 60px 16px 16px;
+                min-height: 56px;
+                max-height: 120px;
             }
             
             .chat-send-btn {
                 bottom: 16px;
                 right: 16px;
+                width: 40px;
+                height: 40px;
             }
             
             .chat-input-actions {
                 bottom: 16px;
-                right: 80px;
+                right: 64px;
             }
             
             /* Mobile-specific adjustments */
             .chat-header {
                 padding: 16px 20px;
+                min-height: 60px;
             }
             
-            .chat-messages {
-                padding: 20px;
-                padding-bottom: 100px; /* Extra space for input on mobile */
+            .chat-title {
+                font-size: 16px;
             }
             
-            .chat-input-container {
+            .ai-status-indicator {
+                font-size: 12px;
+                padding: 4px 8px;
+            }
+            
+            /* Adjust message spacing for mobile */
+            .chat-message {
+                gap: 12px;
+                margin-bottom: 16px;
+            }
+            
+            .chat-message-avatar {
+                width: 32px;
+                height: 32px;
+            }
+            
+            .chat-message-content {
+                flex: 1;
+                min-width: 0;
+            }
+            
+            /* Adjust modal for mobile */
+            .modal-content {
+                width: 95%;
+                max-height: 90vh;
+                margin: 20px auto;
+                border-radius: 16px;
+            }
+            
+            .modal-header {
                 padding: 16px;
             }
             
-            .modal-content {
-                padding: 20px;
-                max-height: 90vh;
-            }
-            
             .modal-title {
-                font-size: 24px;
+                font-size: 20px;
             }
             
+            /* Adjust settings for mobile */
             .settings-tabs {
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
-                scrollbar-width: none; /* Firefox */
+                scrollbar-width: none;
             }
             
             .settings-tabs::-webkit-scrollbar {
-                display: none; /* Chrome, Safari, Edge */
+                display: none;
             }
             
             .settings-tab {
                 white-space: nowrap;
-                padding: 12px 16px;
+                padding: 10px 16px;
                 font-size: 14px;
             }
             
+            /* Adjust notification for mobile */
             .notification {
-                right: 16px;
                 left: 16px;
+                right: 16px;
                 max-width: none;
+            }
+            
+            /* Ensure proper viewport handling */
+            html, body {
+                height: 100%;
+                overflow: hidden;
+            }
+            
+            body.mobile-device {
+                overflow: hidden;
+                position: fixed;
+                width: 100%;
+                height: 100%;
+            }
+            
+            /* Handle keyboard open state */
+            body.keyboard-open .chat-input-container {
+                padding-bottom: 10px;
+            }
+            
+            body.keyboard-open .chat-messages {
+                padding-bottom: 80px;
             }
         }
         
@@ -1523,15 +1521,6 @@
         /* Mobile device specific styles */
         body.mobile-device .chat-input {
             font-size: 16px; /* Prevents zoom on iOS */
-        }
-        
-        /* Mobile keyboard open styles */
-        body.keyboard-open .chat-input-container {
-            padding-bottom: 10px;
-        }
-        
-        body.keyboard-open .chat-messages {
-            padding-bottom: 10px;
         }
         
         /* Mobile menu button style */
@@ -1624,19 +1613,13 @@
     </style>
 </head>
 <body>
-    <!-- Connection Status Banner -->
-    <div id="connectionStatus" class="connection-status hidden">
-        <span class="connection-indicator"></span>
-        <span id="connectionStatusText">Checking connection...</span>
-    </div>
-    
     <!-- Splash Screen -->
     <div id="splashScreen" class="splash-screen">
         <div class="splash-logo">
             <img src="https://z-cdn-media.chatglm.cn/files/b5adefdc-370b-43ab-bac7-7b5d02703e79_favicon.png?auth_key=1790181361-361cb6963d6543d7a58ce0880765a3c6-0-38da4cf767b6dab640a5a8aaf7605d27" alt="AJ Logo">
         </div>
         <h1 class="splash-title">AJ STUDIOZ</h1>
-        <p class="splash-subtitle">Powered by Lynxa-AI</p>
+        <p class="splash-subtitle">Powered by Claude AI</p>
         <div class="splash-loader">
             <div class="splash-loader-bar"></div>
         </div>
@@ -1675,10 +1658,10 @@
                             <div class="feature-card-icon">
                                 <i data-lucide="brain" class="w-5 h-5"></i>
                             </div>
-                            <div class="feature-card-title">Lynxa-AI</div>
+                            <div class="feature-card-title">Claude AI</div>
                         </div>
                         <div class="feature-card-description">
-                            Advanced AI combining multiple models for superior responses.
+                            Advanced AI powered by Claude 3 Sonnet for superior responses.
                         </div>
                     </div>
                     
@@ -1716,7 +1699,7 @@
                     <div class="chat-title" id="chatTitle">New Chat</div>
                     <div id="aiStatusIndicator" class="ai-status-indicator">
                         <span class="ai-status-dot"></span>
-                        <span id="aiStatusText">Lynxa-AI</span>
+                        <span id="aiStatusText">Claude AI</span>
                     </div>
                 </div>
                 <div class="chat-actions">
@@ -1739,7 +1722,7 @@
                         <img src="https://z-cdn-media.chatglm.cn/files/b5adefdc-370b-43ab-bac7-7b5d02703e79_favicon.png?auth_key=1790181361-361cb6963d6543d7a58ce0880765a3c6-0-38da4cf767b6dab640a5a8aaf7605d27" alt="AJ Logo">
                     </div>
                     <h1 class="chat-welcome-title">AJ STUDIOZ</h1>
-                    <p class="chat-welcome-subtitle">Experience the power of Lynxa-AI, our advanced AI assistant</p>
+                    <p class="chat-welcome-subtitle">Experience the power of Claude AI, our advanced assistant</p>
                     
                     <div class="chat-welcome-examples">
                         <div class="chat-welcome-example" data-prompt="Create a modern portfolio website with a hero section, about me, skills, projects, and contact sections.">
@@ -1772,7 +1755,7 @@
                     <textarea 
                         id="chatInput" 
                         class="chat-input" 
-                        placeholder="Message Lynxa-AI..."
+                        placeholder="Message Claude AI..."
                         rows="1"
                     ></textarea>
                     <div class="chat-input-actions">
@@ -1863,8 +1846,8 @@
             <div id="aiTab" class="settings-tab-content hidden">
                 <div class="settings-section">
                     <h3 class="settings-section-title">
-                        <i data-lucide="brain" class="w-5 h-5"></i>
-                        Lynxa-AI Settings
+                        <i data-lucide="sliders" class="w-5 h-5"></i>
+                        AI Settings
                     </h3>
                     <div class="settings-item">
                         <label class="settings-label">Creativity</label>
@@ -1957,9 +1940,9 @@
             messages: [],
             conversations: [],
             currentConversation: null,
-            selectedProvider: 'lynxa-ai', // Single AI provider
+            selectedProvider: 'claude-ai',
             providers: [
-                { id: 'lynxa-ai', name: 'Lynxa-AI', color: '#8B5CF6', status: 'checking' }
+                { id: 'claude-ai', name: 'Claude AI', color: '#8B5CF6', status: 'checking' }
             ],
             templates: [
                 {
@@ -2031,7 +2014,6 @@
                 functionUrl: '/api/chat',
                 siteId: ''
             },
-            connectionStatus: 'checking', // 'online', 'offline', 'checking'
             aiStatus: 'checking' // 'online', 'offline', 'checking'
         };
         
@@ -2075,8 +2057,6 @@
             autoSaveToggle: document.getElementById('autoSaveToggle'),
             cancelSettingsBtn: document.getElementById('cancelSettingsBtn'),
             saveSettingsBtn: document.getElementById('saveSettingsBtn'),
-            connectionStatus: document.getElementById('connectionStatus'),
-            connectionStatusText: document.getElementById('connectionStatusText'),
             aiStatusIndicator: document.getElementById('aiStatusIndicator'),
             aiStatusText: document.getElementById('aiStatusText')
         };
@@ -2115,9 +2095,6 @@
                 // Initialize Lucide icons
                 lucide.createIcons();
                 
-                // Check connection status
-                checkConnection();
-                
                 // Check AI status on load
                 checkAIStatus();
                 
@@ -2125,58 +2102,8 @@
                 checkDeploymentStatus();
                 
                 // Set up periodic status checks
-                setInterval(checkConnection, 30000); // Check every 30 seconds
                 setInterval(checkAIStatus, 60000); // Check every minute
             }, 2500);
-        }
-        
-        // Check connection status
-        function checkConnection() {
-            updateConnectionStatus('checking');
-            
-            if (navigator.onLine) {
-                // Try to fetch a small resource to verify connection
-                fetch('/favicon.ico', { method: 'HEAD' })
-                    .then(() => {
-                        updateConnectionStatus('online');
-                    })
-                    .catch(() => {
-                        updateConnectionStatus('offline');
-                    });
-            } else {
-                updateConnectionStatus('offline');
-            }
-        }
-        
-        // Update connection status
-        function updateConnectionStatus(status) {
-            state.connectionStatus = status;
-            const connectionStatus = elements.connectionStatus;
-            const connectionStatusText = elements.connectionStatusText;
-            
-            connectionStatus.className = 'connection-status ' + status;
-            
-            switch (status) {
-                case 'online':
-                    connectionStatusText.textContent = 'Connected to server';
-                    break;
-                case 'offline':
-                    connectionStatusText.textContent = 'No internet connection';
-                    break;
-                case 'checking':
-                    connectionStatusText.textContent = 'Checking connection...';
-                    break;
-            }
-            
-            // Show notification for status changes
-            if (status === 'offline') {
-                showNotification('No internet connection. Please check your network settings.', 'error');
-            } else if (status === 'online') {
-                // Only show notification if we were previously offline
-                if (connectionStatus.classList.contains('offline')) {
-                    showNotification('Connection restored', 'success');
-                }
-            }
         }
         
         // Check AI status
@@ -2226,10 +2153,10 @@
             
             switch (status) {
                 case 'online':
-                    aiStatusText.textContent = 'Lynxa-AI Online';
+                    aiStatusText.textContent = 'Claude AI Online';
                     break;
                 case 'offline':
-                    aiStatusText.textContent = 'Lynxa-AI Offline';
+                    aiStatusText.textContent = 'Claude AI Offline';
                     break;
                 case 'checking':
                     aiStatusText.textContent = 'Checking AI...';
@@ -2486,7 +2413,7 @@
                     </div>
                     <div class="chat-message-content">
                         <div class="chat-message-header">
-                            <div class="chat-message-name">${message.role === 'user' ? 'You' : 'Lynxa-AI'}</div>
+                            <div class="chat-message-name">${message.role === 'user' ? 'You' : 'Claude AI'}</div>
                             <div class="chat-message-time">${formatTime(message.timestamp)}</div>
                         </div>
                         <div class="chat-message-text">${formatMessage(message.content)}</div>
@@ -2565,15 +2492,9 @@
             const content = elements.chatInput.value.trim();
             if (!content || state.isGenerating) return;
             
-            // Check connection status before sending
-            if (state.connectionStatus !== 'online') {
-                showNotification('No internet connection. Please check your network and try again.', 'error');
-                return;
-            }
-            
             // Check AI status before sending
             if (state.aiStatus !== 'online') {
-                showNotification('Lynxa-AI service is currently unavailable. Please try again later.', 'error');
+                showNotification('Claude AI service is currently unavailable. Please try again later.', 'error');
                 return;
             }
             
@@ -2666,7 +2587,7 @@
                 
                 // Check if it's an API key error
                 if (error.message.includes('API key required') || error.message.includes('Authentication failed')) {
-                    addMessage('assistant', `I'm sorry, but the Lynxa-AI service isn't properly configured. Please add the required API keys in your Vercel environment variables.`);
+                    addMessage('assistant', `I'm sorry, but the Claude AI service isn't properly configured. Please add the required API key in your Vercel environment variables.`);
                 } else {
                     // Add error message
                     addMessage('assistant', `I'm sorry, I encountered an error while processing your request. Please try again later.\n\nError: ${error.message}`);
@@ -2762,7 +2683,7 @@
                 </div>
                 <div class="chat-message-content">
                     <div class="chat-message-header">
-                        <div class="chat-message-name">Lynxa-AI</div>
+                        <div class="chat-message-name">Claude AI</div>
                         <div class="chat-message-time">${formatTime(new Date())}</div>
                     </div>
                     <div class="chat-message-text">
@@ -3113,15 +3034,6 @@
                     elements.chatSidebar.classList.remove('open');
                     elements.mobileMenuOverlay.classList.remove('active');
                 }
-            });
-            
-            // Connection status listeners
-            window.addEventListener('online', () => {
-                checkConnection();
-            });
-            
-            window.addEventListener('offline', () => {
-                checkConnection();
             });
             
             // Add touch event support for mobile
