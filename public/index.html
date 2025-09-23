@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AJ STUDIOZ - Advanced AI Website Studio</title>
-    <meta name="description" content="AI-powered website creation studio with combined Claude and Gemini intelligence">
+    <title>AJ STUDIOZ - Lynxa-AI Website Studio</title>
+    <meta name="description" content="AI-powered website creation studio with Lynxa-AI intelligence">
     <link rel="icon" type="image/png" href="https://z-cdn-media.chatglm.cn/files/b5adefdc-370b-43ab-bac7-7b5d02703e79_favicon.png?auth_key=1790181361-361cb6963d6543d7a58ce0880765a3c6-0-38da4cf767b6dab640a5a8aaf7605d27">
     
     <!-- Preload critical resources -->
@@ -48,8 +48,6 @@
             --offline-color: #EF4444;
             --connecting-color: #F59E0B;
             --lynxa-color: #8B5CF6;
-            --claude-color: #FF6B6B;
-            --gemini-color: #4ECDC4;
         }
         
         body {
@@ -477,11 +475,6 @@
             color: var(--text-primary);
         }
         
-        .ai-status-container {
-            display: flex;
-            gap: 10px;
-        }
-        
         .ai-status-indicator {
             display: flex;
             align-items: center;
@@ -492,30 +485,21 @@
             font-weight: 500;
         }
         
-        .ai-status-indicator.claude {
-            background: rgba(255, 107, 107, 0.2);
-            color: var(--claude-color);
-        }
-        
-        .ai-status-indicator.gemini {
-            background: rgba(78, 205, 196, 0.2);
-            color: var(--gemini-color);
-        }
-        
-        .ai-status-indicator.combined {
-            background: rgba(139, 92, 246, 0.2);
-            color: var(--lynxa-color);
-        }
-        
         .ai-status-indicator.online {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--online-color);
             box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
         }
         
         .ai-status-indicator.offline {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--offline-color);
             box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
         }
         
         .ai-status-indicator.connecting {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--connecting-color);
             box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
         }
         
@@ -526,6 +510,7 @@
         }
         
         .ai-status-dot.online {
+            background: var(--online-color);
             animation: pulse 2s infinite;
         }
         
@@ -534,19 +519,8 @@
         }
         
         .ai-status-dot.connecting {
+            background: var(--connecting-color);
             animation: pulse 1.5s infinite;
-        }
-        
-        .ai-status-dot.claude {
-            background: var(--claude-color);
-        }
-        
-        .ai-status-dot.gemini {
-            background: var(--gemini-color);
-        }
-        
-        .ai-status-dot.combined {
-            background: var(--lynxa-color);
         }
         
         .chat-actions {
@@ -747,28 +721,6 @@
         .chat-message-time {
             font-size: 13px;
             color: var(--text-secondary);
-        }
-        
-        .chat-message-model {
-            font-size: 12px;
-            padding: 2px 8px;
-            border-radius: 12px;
-            margin-left: 8px;
-        }
-        
-        .chat-message-model.claude {
-            background: rgba(255, 107, 107, 0.2);
-            color: var(--claude-color);
-        }
-        
-        .chat-message-model.gemini {
-            background: rgba(78, 205, 196, 0.2);
-            color: var(--gemini-color);
-        }
-        
-        .chat-message-model.combined {
-            background: rgba(139, 92, 246, 0.2);
-            color: var(--lynxa-color);
         }
         
         .chat-message-text {
@@ -1520,16 +1472,6 @@
                 left: 16px;
                 max-width: none;
             }
-            
-            .ai-status-container {
-                flex-direction: column;
-                gap: 6px;
-            }
-            
-            .ai-status-indicator {
-                font-size: 12px;
-                padding: 4px 8px;
-            }
         }
         
         /* Mobile Menu Overlay */
@@ -1634,54 +1576,7 @@
             }
         }
         
-        /* AI Model Status Pills */
-        .ai-model-status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 500;
-            margin-bottom: 10px;
-        }
-        
-        .ai-model-status.claude {
-            background: rgba(255, 107, 107, 0.2);
-            color: var(--claude-color);
-        }
-        
-        .ai-model-status.gemini {
-            background: rgba(78, 205, 196, 0.2);
-            color: var(--gemini-color);
-        }
-        
-        .ai-model-status.combined {
-            background: rgba(139, 92, 246, 0.2);
-            color: var(--lynxa-color);
-        }
-        
-        .ai-model-status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-        }
-        
-        .ai-model-status-dot.online {
-            background: var(--online-color);
-            animation: pulse 2s infinite;
-        }
-        
-        .ai-model-status-dot.offline {
-            background: var(--offline-color);
-        }
-        
-        .ai-model-status-dot.connecting {
-            background: var(--connecting-color);
-            animation: pulse 1.5s infinite;
-        }
-        
-        /* Advanced Feature Cards */
+        /* Feature Cards */
         .feature-card {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid var(--border-color);
@@ -1726,62 +1621,6 @@
             color: var(--text-secondary);
             line-height: 1.6;
         }
-        
-        /* Combined AI Response Styling */
-        .combined-response {
-            position: relative;
-            padding: 20px;
-            border-radius: 12px;
-            background: rgba(139, 92, 246, 0.05);
-            border: 1px solid rgba(139, 92, 246, 0.2);
-            margin-top: 16px;
-        }
-        
-        .combined-response-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 16px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
-        }
-        
-        .combined-response-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--lynxa-color);
-        }
-        
-        .combined-response-section {
-            margin-bottom: 16px;
-        }
-        
-        .combined-response-section-title {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .combined-response-section-title.claude {
-            color: var(--claude-color);
-        }
-        
-        .combined-response-section-title.gemini {
-            color: var(--gemini-color);
-        }
-        
-        .combined-response-section-title.combined {
-            color: var(--lynxa-color);
-        }
-        
-        .combined-response-section-content {
-            font-size: 15px;
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
     </style>
 </head>
 <body>
@@ -1797,7 +1636,7 @@
             <img src="https://z-cdn-media.chatglm.cn/files/b5adefdc-370b-43ab-bac7-7b5d02703e79_favicon.png?auth_key=1790181361-361cb6963d6543d7a58ce0880765a3c6-0-38da4cf767b6dab640a5a8aaf7605d27" alt="AJ Logo">
         </div>
         <h1 class="splash-title">AJ STUDIOZ</h1>
-        <p class="splash-subtitle">Powered by Combined AI Intelligence</p>
+        <p class="splash-subtitle">Powered by Lynxa-AI</p>
         <div class="splash-loader">
             <div class="splash-loader-bar"></div>
         </div>
@@ -1830,23 +1669,16 @@
                 </div>
                 
                 <div class="chat-sidebar-section">
-                    <div class="chat-sidebar-section-title">AI Models</div>
-                    <div id="providersList" class="space-y-1">
-                        <!-- Providers will be added here -->
-                    </div>
-                </div>
-                
-                <div class="chat-sidebar-section">
                     <div class="chat-sidebar-section-title">Features</div>
                     <div class="feature-card">
                         <div class="feature-card-header">
                             <div class="feature-card-icon">
                                 <i data-lucide="brain" class="w-5 h-5"></i>
                             </div>
-                            <div class="feature-card-title">Combined AI</div>
+                            <div class="feature-card-title">Lynxa-AI</div>
                         </div>
                         <div class="feature-card-description">
-                            Harness the power of both Claude and Gemini working together for superior responses.
+                            Advanced AI combining multiple models for superior responses.
                         </div>
                     </div>
                     
@@ -1858,7 +1690,7 @@
                             <div class="feature-card-title">Lightning Fast</div>
                         </div>
                         <div class="feature-card-description">
-                            Optimized for speed with parallel processing and streaming responses.
+                            Optimized for speed with streaming responses.
                         </div>
                     </div>
                 </div>
@@ -1882,15 +1714,9 @@
             <div class="chat-header">
                 <div class="chat-title-container">
                     <div class="chat-title" id="chatTitle">New Chat</div>
-                    <div class="ai-status-container">
-                        <div id="claudeStatus" class="ai-status-indicator claude">
-                            <span class="ai-status-dot claude"></span>
-                            <span id="claudeStatusText">Claude</span>
-                        </div>
-                        <div id="geminiStatus" class="ai-status-indicator gemini">
-                            <span class="ai-status-dot gemini"></span>
-                            <span id="geminiStatusText">Gemini</span>
-                        </div>
+                    <div id="aiStatusIndicator" class="ai-status-indicator">
+                        <span class="ai-status-dot"></span>
+                        <span id="aiStatusText">Lynxa-AI</span>
                     </div>
                 </div>
                 <div class="chat-actions">
@@ -1913,7 +1739,7 @@
                         <img src="https://z-cdn-media.chatglm.cn/files/b5adefdc-370b-43ab-bac7-7b5d02703e79_favicon.png?auth_key=1790181361-361cb6963d6543d7a58ce0880765a3c6-0-38da4cf767b6dab640a5a8aaf7605d27" alt="AJ Logo">
                     </div>
                     <h1 class="chat-welcome-title">AJ STUDIOZ</h1>
-                    <p class="chat-welcome-subtitle">Experience the power of Combined AI with Claude and Gemini working together</p>
+                    <p class="chat-welcome-subtitle">Experience the power of Lynxa-AI, our advanced AI assistant</p>
                     
                     <div class="chat-welcome-examples">
                         <div class="chat-welcome-example" data-prompt="Create a modern portfolio website with a hero section, about me, skills, projects, and contact sections.">
@@ -1946,7 +1772,7 @@
                     <textarea 
                         id="chatInput" 
                         class="chat-input" 
-                        placeholder="Message Combined AI..."
+                        placeholder="Message Lynxa-AI..."
                         rows="1"
                     ></textarea>
                     <div class="chat-input-actions">
@@ -2038,7 +1864,7 @@
                 <div class="settings-section">
                     <h3 class="settings-section-title">
                         <i data-lucide="brain" class="w-5 h-5"></i>
-                        Combined AI Settings
+                        Lynxa-AI Settings
                     </h3>
                     <div class="settings-item">
                         <label class="settings-label">Creativity</label>
@@ -2086,13 +1912,6 @@
                             <label for="autoSaveToggle">Auto-save Conversations</label>
                         </div>
                     </div>
-                    
-                    <div class="settings-item">
-                        <div class="settings-checkbox">
-                            <input type="checkbox" id="combinedResponseToggle" checked>
-                            <label for="combinedResponseToggle">Show Combined AI Responses</label>
-                        </div>
-                    </div>
                 </div>
             </div>
             
@@ -2138,11 +1957,9 @@
             messages: [],
             conversations: [],
             currentConversation: null,
-            selectedProvider: 'combined', // Default to combined AI
+            selectedProvider: 'lynxa-ai', // Single AI provider
             providers: [
-                { id: 'combined', name: 'Combined AI', color: '#8B5CF6', status: 'checking' },
-                { id: 'claude', name: 'Claude', color: '#FF6B6B', status: 'checking' },
-                { id: 'gemini', name: 'Gemini', color: '#4ECDC4', status: 'checking' }
+                { id: 'lynxa-ai', name: 'Lynxa-AI', color: '#8B5CF6', status: 'checking' }
             ],
             templates: [
                 {
@@ -2204,7 +2021,6 @@
                 focus: 50,
                 streaming: true,
                 autoSave: true,
-                combinedResponse: true,
                 typingSpeed: 30 // Characters per second for typing effect
             },
             uploadedImages: [],
@@ -2216,8 +2032,7 @@
                 siteId: ''
             },
             connectionStatus: 'checking', // 'online', 'offline', 'checking'
-            claudeStatus: 'checking', // 'online', 'offline', 'checking'
-            geminiStatus: 'checking' // 'online', 'offline', 'checking'
+            aiStatus: 'checking' // 'online', 'offline', 'checking'
         };
         
         // DOM elements
@@ -2242,7 +2057,6 @@
             userName: document.getElementById('userName'),
             userEmail: document.getElementById('userEmail'),
             recentChats: document.getElementById('recentChats'),
-            providersList: document.getElementById('providersList'),
             templatesModal: document.getElementById('templatesModal'),
             closeTemplatesModal: document.getElementById('closeTemplatesModal'),
             templatesGrid: document.getElementById('templatesGrid'),
@@ -2259,15 +2073,12 @@
             darkModeToggle: document.getElementById('darkModeToggle'),
             streamingToggle: document.getElementById('streamingToggle'),
             autoSaveToggle: document.getElementById('autoSaveToggle'),
-            combinedResponseToggle: document.getElementById('combinedResponseToggle'),
             cancelSettingsBtn: document.getElementById('cancelSettingsBtn'),
             saveSettingsBtn: document.getElementById('saveSettingsBtn'),
             connectionStatus: document.getElementById('connectionStatus'),
             connectionStatusText: document.getElementById('connectionStatusText'),
-            claudeStatus: document.getElementById('claudeStatus'),
-            claudeStatusText: document.getElementById('claudeStatusText'),
-            geminiStatus: document.getElementById('geminiStatus'),
-            geminiStatusText: document.getElementById('geminiStatusText')
+            aiStatusIndicator: document.getElementById('aiStatusIndicator'),
+            aiStatusText: document.getElementById('aiStatusText')
         };
         
         // Initialize the app
@@ -2295,9 +2106,6 @@
                 loadSettings();
                 loadConversations();
                 
-                // Render providers
-                renderProviders();
-                
                 // Render templates
                 renderTemplates();
                 
@@ -2311,16 +2119,14 @@
                 checkConnection();
                 
                 // Check AI status on load
-                checkClaudeStatus();
-                checkGeminiStatus();
+                checkAIStatus();
                 
                 // Check Vercel deployment status
                 checkDeploymentStatus();
                 
                 // Set up periodic status checks
                 setInterval(checkConnection, 30000); // Check every 30 seconds
-                setInterval(checkClaudeStatus, 60000); // Check every minute
-                setInterval(checkGeminiStatus, 60000); // Check every minute
+                setInterval(checkAIStatus, 60000); // Check every minute
             }, 2500);
         }
         
@@ -2373,11 +2179,11 @@
             }
         }
         
-        // Check Claude status
-        function checkClaudeStatus() {
-            updateClaudeStatus('checking');
+        // Check AI status
+        function checkAIStatus() {
+            updateAIStatus('checking');
             
-            // Try to ping the Claude service
+            // Try to ping the AI service
             fetch('/api/chat', {
                 method: 'POST',
                 headers: {
@@ -2395,120 +2201,38 @@
             })
             .then(response => {
                 if (response.ok) {
-                    updateClaudeStatus('online');
+                    updateAIStatus('online');
                     // Update provider status
-                    const claudeProvider = state.providers.find(p => p.id === 'claude');
-                    if (claudeProvider) {
-                        claudeProvider.status = 'online';
-                        renderProviders();
-                    }
+                    state.providers[0].status = 'online';
                 } else {
-                    updateClaudeStatus('offline');
-                    const claudeProvider = state.providers.find(p => p.id === 'claude');
-                    if (claudeProvider) {
-                        claudeProvider.status = 'offline';
-                        renderProviders();
-                    }
+                    updateAIStatus('offline');
+                    state.providers[0].status = 'offline';
                 }
             })
             .catch(error => {
-                console.error('Error checking Claude status:', error);
-                updateClaudeStatus('offline');
-                const claudeProvider = state.providers.find(p => p.id === 'claude');
-                if (claudeProvider) {
-                    claudeProvider.status = 'offline';
-                    renderProviders();
-                }
+                console.error('Error checking AI status:', error);
+                updateAIStatus('offline');
+                state.providers[0].status = 'offline';
             });
         }
         
-        // Update Claude status
-        function updateClaudeStatus(status) {
-            state.claudeStatus = status;
-            const claudeStatus = elements.claudeStatus;
-            const claudeStatusText = elements.claudeStatusText;
+        // Update AI status
+        function updateAIStatus(status) {
+            state.aiStatus = status;
+            const aiStatusIndicator = elements.aiStatusIndicator;
+            const aiStatusText = elements.aiStatusText;
             
-            claudeStatus.className = 'ai-status-indicator claude ' + status;
-            
-            switch (status) {
-                case 'online':
-                    claudeStatusText.textContent = 'Claude Online';
-                    break;
-                case 'offline':
-                    claudeStatusText.textContent = 'Claude Offline';
-                    break;
-                case 'checking':
-                    claudeStatusText.textContent = 'Checking Claude...';
-                    break;
-            }
-        }
-        
-        // Check Gemini status
-        function checkGeminiStatus() {
-            updateGeminiStatus('checking');
-            
-            // Try to ping the Gemini service
-            fetch('/api/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    messages: [{ role: 'user', content: 'ping' }],
-                    options: {
-                        creativity: 50,
-                        length: 10,
-                        focus: 50,
-                        streaming: false
-                    }
-                })
-            })
-            .then(response => {
-                if (response.ok) {
-                    updateGeminiStatus('online');
-                    // Update provider status
-                    const geminiProvider = state.providers.find(p => p.id === 'gemini');
-                    if (geminiProvider) {
-                        geminiProvider.status = 'online';
-                        renderProviders();
-                    }
-                } else {
-                    updateGeminiStatus('offline');
-                    const geminiProvider = state.providers.find(p => p.id === 'gemini');
-                    if (geminiProvider) {
-                        geminiProvider.status = 'offline';
-                        renderProviders();
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error checking Gemini status:', error);
-                updateGeminiStatus('offline');
-                const geminiProvider = state.providers.find(p => p.id === 'gemini');
-                if (geminiProvider) {
-                    geminiProvider.status = 'offline';
-                    renderProviders();
-                }
-            });
-        }
-        
-        // Update Gemini status
-        function updateGeminiStatus(status) {
-            state.geminiStatus = status;
-            const geminiStatus = elements.geminiStatus;
-            const geminiStatusText = elements.geminiStatusText;
-            
-            geminiStatus.className = 'ai-status-indicator gemini ' + status;
+            aiStatusIndicator.className = 'ai-status-indicator ' + status;
             
             switch (status) {
                 case 'online':
-                    geminiStatusText.textContent = 'Gemini Online';
+                    aiStatusText.textContent = 'Lynxa-AI Online';
                     break;
                 case 'offline':
-                    geminiStatusText.textContent = 'Gemini Offline';
+                    aiStatusText.textContent = 'Lynxa-AI Offline';
                     break;
                 case 'checking':
-                    geminiStatusText.textContent = 'Checking Gemini...';
+                    aiStatusText.textContent = 'Checking AI...';
                     break;
             }
         }
@@ -2542,7 +2266,6 @@
                     elements.darkModeToggle.checked = state.settings.darkMode;
                     elements.streamingToggle.checked = state.settings.streaming;
                     elements.autoSaveToggle.checked = state.settings.autoSave;
-                    elements.combinedResponseToggle.checked = state.settings.combinedResponse;
                     
                     // Update slider values
                     updateSliderValues();
@@ -2575,32 +2298,6 @@
         // Save conversations to localStorage
         function saveConversations() {
             localStorage.setItem('ajStudiozConversations', JSON.stringify(state.conversations));
-        }
-        
-        // Render providers
-        function renderProviders() {
-            elements.providersList.innerHTML = state.providers.map(provider => `
-                <div class="chat-history-item ${state.selectedProvider === provider.id ? 'active' : ''}" data-provider="${provider.id}">
-                    <div class="chat-history-item-icon">
-                        <div style="width: 24px; height: 24px; border-radius: 50%; background: ${provider.color}; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
-                            ${provider.id === 'combined' ? 'C' : provider.id === 'claude' ? 'C' : 'G'}
-                        </div>
-                    </div>
-                    <div class="chat-history-item-text">${provider.name}</div>
-                    <span class="provider-status-indicator ${provider.status}"></span>
-                </div>
-            `).join('');
-            
-            // Re-initialize Lucide icons
-            lucide.createIcons();
-            
-            // Add click event to provider items
-            elements.providersList.querySelectorAll('.chat-history-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    const provider = item.dataset.provider;
-                    selectProvider(provider);
-                });
-            });
         }
         
         // Render templates
@@ -2685,19 +2382,6 @@
                     });
                 }
             });
-        }
-        
-        // Select a provider
-        function selectProvider(providerId) {
-            state.selectedProvider = providerId;
-            
-            // Update UI
-            elements.providersList.querySelectorAll('.chat-history-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            elements.providersList.querySelector(`[data-provider="${providerId}"]`).classList.add('active');
-            
-            showNotification(`Selected ${getProviderName(providerId)}`, 'info');
         }
         
         // Start a new chat
@@ -2802,9 +2486,8 @@
                     </div>
                     <div class="chat-message-content">
                         <div class="chat-message-header">
-                            <div class="chat-message-name">${message.role === 'user' ? 'You' : 'Combined AI'}</div>
+                            <div class="chat-message-name">${message.role === 'user' ? 'You' : 'Lynxa-AI'}</div>
                             <div class="chat-message-time">${formatTime(message.timestamp)}</div>
-                            ${message.role === 'assistant' ? `<span class="chat-message-model combined">Combined</span>` : ''}
                         </div>
                         <div class="chat-message-text">${formatMessage(message.content)}</div>
                         <div class="chat-message-actions">
@@ -2889,8 +2572,8 @@
             }
             
             // Check AI status before sending
-            if (state.selectedProvider === 'combined' && state.claudeStatus !== 'online' && state.geminiStatus !== 'online') {
-                showNotification('Both Claude and Gemini services are currently unavailable. Please try again later.', 'error');
+            if (state.aiStatus !== 'online') {
+                showNotification('Lynxa-AI service is currently unavailable. Please try again later.', 'error');
                 return;
             }
             
@@ -2983,7 +2666,7 @@
                 
                 // Check if it's an API key error
                 if (error.message.includes('API key required') || error.message.includes('Authentication failed')) {
-                    addMessage('assistant', `I'm sorry, but the Combined AI service isn't properly configured. Please add the required API keys in your Vercel environment variables.`);
+                    addMessage('assistant', `I'm sorry, but the Lynxa-AI service isn't properly configured. Please add the required API keys in your Vercel environment variables.`);
                 } else {
                     // Add error message
                     addMessage('assistant', `I'm sorry, I encountered an error while processing your request. Please try again later.\n\nError: ${error.message}`);
@@ -3079,9 +2762,8 @@
                 </div>
                 <div class="chat-message-content">
                     <div class="chat-message-header">
-                        <div class="chat-message-name">Combined AI</div>
+                        <div class="chat-message-name">Lynxa-AI</div>
                         <div class="chat-message-time">${formatTime(new Date())}</div>
-                        <span class="chat-message-model combined">Combined</span>
                     </div>
                     <div class="chat-message-text">
                         <div class="typing-indicator">
@@ -3371,10 +3053,6 @@
                 state.settings.autoSave = e.target.checked;
             });
             
-            elements.combinedResponseToggle.addEventListener('change', (e) => {
-                state.settings.combinedResponse = e.target.checked;
-            });
-            
             // Save settings button
             elements.saveSettingsBtn.addEventListener('click', () => {
                 state.settings.creativity = parseInt(elements.creativitySlider.value);
@@ -3383,7 +3061,6 @@
                 state.settings.darkMode = elements.darkModeToggle.checked;
                 state.settings.streaming = elements.streamingToggle.checked;
                 state.settings.autoSave = elements.autoSaveToggle.checked;
-                state.settings.combinedResponse = elements.combinedResponseToggle.checked;
                 
                 saveSettings();
                 
@@ -3608,11 +3285,6 @@
         }
         
         // Helper functions
-        function getProviderName(provider) {
-            const providerObj = state.providers.find(p => p.id === provider);
-            return providerObj ? providerObj.name : 'AI';
-        }
-        
         function formatTime(date) {
             return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         }
