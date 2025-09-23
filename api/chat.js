@@ -4,7 +4,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { messages, options } = req.body;
+    const { messages, options, model } = req.body;
     if (!messages || !options) {
       return res.status(400).json({ error: "Missing messages or options" });
     }
@@ -13,57 +13,30 @@ export default async function handler(req, res) {
     const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
     const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
     
-    if (!ANTHROPIC_API_KEY || !GEMINI_API_KEY) {
-      return res.status(500).json({ error: "API keys not configured" });
-    }
+    // Determine which model to use
+    const selectedModel = model || 'claude'; // Default to Claude
+    
+    let responseText = "";
 
-    // Prepare the prompt for both models
-    const lastMessage = messages[messages.length - 1];
-    const prompt = lastMessage.content;
-
-    // Create requests for both models
-    const claudeRequest = fetchClaudeResponse(messages, options, ANTHROPIC_API_KEY);
-    const geminiRequest = fetchGeminiResponse(messages, options, GEMINI_API_KEY);
-
-    // Execute both requests in parallel
-    const [claudeResponse, geminiResponse] = await Promise.allSettled([
-      claudeRequest,
-      geminiRequest
-    ]);
-
-    // Process responses
-    let claudeText = "";
-    let geminiText = "";
-    let combinedText = "";
-
-    if (claudeResponse.status === "fulfilled" && claudeResponse.value) {
-      claudeText = claudeResponse.value;
+    if (selectedModel === 'claude') {
+      if (!ANTHROPIC_API_KEY) {
+        return res.status(500).json({ error: "ANTHROPIC_API_KEY not configured" });
+      }
+      responseText = await fetchClaudeResponse(messages, options, ANTHROPIC_API_KEY);
+    } else if (selectedModel === 'gemini') {
+      if (!GEMINI_API_KEY) {
+        return res.status(500).json({ error: "GEMINI_API_KEY not configured" });
+      }
+      responseText = await fetchGeminiResponse(messages, options, GEMINI_API_KEY);
     } else {
-      console.error("Claude API error:", claudeResponse.reason);
-      claudeText = "[Claude response unavailable]";
+      return res.status(400).json({ error: "Invalid model selected" });
     }
 
-    if (geminiResponse.status === "fulfilled" && geminiResponse.value) {
-      geminiText = geminiResponse.value;
-    } else {
-      console.error("Gemini API error:", geminiResponse.reason);
-      geminiText = "[Gemini response unavailable]";
-    }
-
-    // Combine responses intelligently
-    if (claudeText && geminiText) {
-      // If both responses are available, create a synthesized response
-      combinedText = synthesizeResponses(claudeText, geminiText);
-    } else {
-      // If only one response is available, use that
-      combinedText = claudeText || geminiText;
-    }
-
-    // Return the combined response
+    // Return the response
     return res.status(200).json({
       choices: [{
         message: {
-          content: combinedText,
+          content: responseText,
           role: "assistant"
         }
       }]
@@ -154,32 +127,4 @@ async function fetchGeminiResponse(messages, options, apiKey) {
 
   const data = await response.json();
   return data.candidates[0].content.parts[0].text;
-}
-
-// Function to synthesize responses from both models
-function synthesizeResponses(claudeText, geminiText) {
-  // Simple synthesis - in a real implementation, this could be more sophisticated
-  const claudePoints = claudeText.split('\n').filter(p => p.trim());
-  const geminiPoints = geminiText.split('\n').filter(p => p.trim());
-  
-  // Create a unified response that blends both perspectives
-  let synthesis = "";
-  
-  // Start with a unified introduction
-  synthesis += "I've analyzed your request using multiple AI perspectives to provide a comprehensive response.\n\n";
-  
-  // Add the main content from both models
-  if (claudeText.length > geminiText.length) {
-    synthesis += claudeText;
-    if (geminiText && geminiText !== "[Gemini response unavailable]") {
-      synthesis += "\n\n**Additional insights:**\n" + geminiText;
-    }
-  } else {
-    synthesis += geminiText;
-    if (claudeText && claudeText !== "[Claude response unavailable]") {
-      synthesis += "\n\n**Additional insights:**\n" + claudeText;
-    }
-  }
-  
-  return synthesis;
 }
