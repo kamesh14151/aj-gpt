@@ -4,33 +4,20 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { messages, options, model } = req.body;
+    const { messages, options } = req.body;
     if (!messages || !options) {
       return res.status(400).json({ error: "Missing messages or options" });
     }
 
-    // Get API keys from environment variables
+    // Get API key from environment variables
     const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
     
-    // Determine which model to use
-    const selectedModel = model || 'claude'; // Default to Claude
-    
-    let responseText = "";
-
-    if (selectedModel === 'claude') {
-      if (!ANTHROPIC_API_KEY) {
-        return res.status(500).json({ error: "ANTHROPIC_API_KEY not configured" });
-      }
-      responseText = await fetchClaudeResponse(messages, options, ANTHROPIC_API_KEY);
-    } else if (selectedModel === 'gemini') {
-      if (!GEMINI_API_KEY) {
-        return res.status(500).json({ error: "GEMINI_API_KEY not configured" });
-      }
-      responseText = await fetchGeminiResponse(messages, options, GEMINI_API_KEY);
-    } else {
-      return res.status(400).json({ error: "Invalid model selected" });
+    if (!ANTHROPIC_API_KEY) {
+      return res.status(500).json({ error: "ANTHROPIC_API_KEY not configured" });
     }
+
+    // Fetch Claude response
+    const responseText = await fetchClaudeResponse(messages, options, ANTHROPIC_API_KEY);
 
     // Return the response
     return res.status(200).json({
@@ -78,53 +65,4 @@ async function fetchClaudeResponse(messages, options, apiKey) {
 
   const data = await response.json();
   return data.content[0].text;
-}
-
-// Function to fetch Gemini response
-async function fetchGeminiResponse(messages, options, apiKey) {
-  const geminiPayload = {
-    contents: messages.map(msg => ({
-      role: msg.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: msg.content }]
-    })),
-    generationConfig: {
-      temperature: options.creativity / 100 || 0.7,
-      topK: 1,
-      topP: 1,
-      maxOutputTokens: options.length || 2048,
-    },
-    safetySettings: [
-      {
-        category: "HARM_CATEGORY_HARASSMENT",
-        threshold: "BLOCK_MEDIUM_AND_ABOVE"
-      },
-      {
-        category: "HARM_CATEGORY_HATE_SPEECH",
-        threshold: "BLOCK_MEDIUM_AND_ABOVE"
-      },
-      {
-        category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-        threshold: "BLOCK_MEDIUM_AND_ABOVE"
-      },
-      {
-        category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-        threshold: "BLOCK_MEDIUM_AND_ABOVE"
-      }
-    ]
-  };
-
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=${apiKey}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(geminiPayload)
-  });
-
-  if (!response.ok) {
-    throw new Error(`Gemini API Error: ${response.status}`);
-  }
-
-  const data = await response.json();
-  return data.candidates[0].content.parts[0].text;
 }
