@@ -112,7 +112,7 @@ async function fetchClaudeResponse(messages, options, apiKey) {
   }
 
   const anthropicPayload = {
-    model: "claude-3-5-sonnet-20241022", // Updated to newer model
+    model: "claude-sonnet-4-20250514", // Use Claude Sonnet 4 (latest)
     max_tokens: Math.min(Math.max(options.length || 1024, 1), 4096), // Clamp between 1 and 4096
     messages: claudeMessages,
     temperature: options.creativity ? (options.creativity / 100) : 0.7, // Convert 0-100 to 0-1
