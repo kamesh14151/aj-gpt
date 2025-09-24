@@ -1,4 +1,4 @@
-// api/chat.js - Fixed Vercel API handler
+// api/chat.js - Fixed Vercel API handler with better response handling
 export default async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -53,7 +53,15 @@ export default async function handler(req, res) {
     // Fetch Claude response
     const responseText = await fetchClaudeResponse(messages, options, ANTHROPIC_API_KEY);
     
-    // Return the response
+    // Make sure we have actual content
+    if (!responseText || responseText.trim() === '') {
+      console.error("Empty response from Claude API");
+      return res.status(500).json({ error: "Empty response from AI" });
+    }
+
+    console.log("Final response text:", responseText.substring(0, 200) + "...");
+    
+    // Return the response in the expected format
     return res.status(200).json({
       choices: [{
         message: {
@@ -115,7 +123,7 @@ async function fetchClaudeResponse(messages, options, apiKey) {
     model: "claude-sonnet-4-20250514", // Use Claude Sonnet 4 (latest)
     max_tokens: Math.min(Math.max(options.length || 1024, 1), 4096), // Clamp between 1 and 4096
     messages: claudeMessages,
-    temperature: options.creativity ? (options.creativity / 100) : 0.7, // Convert 0-100 to 0-1
+    temperature: options.creativity ? Math.min(options.creativity / 100, 1) : 0.7, // Convert 0-100 to 0-1, clamp to max 1
     // Add system message if needed
     ...(options.system && { system: options.system })
   };
@@ -134,7 +142,7 @@ async function fetchClaudeResponse(messages, options, apiKey) {
 
   const responseText = await response.text();
   console.log("Claude API Response Status:", response.status);
-  console.log("Claude API Response:", responseText.substring(0, 500));
+  console.log("Claude API Raw Response:", responseText.substring(0, 500) + "...");
 
   if (!response.ok) {
     let errorMessage = `Claude API Error: ${response.status}`;
@@ -151,12 +159,36 @@ async function fetchClaudeResponse(messages, options, apiKey) {
   try {
     data = JSON.parse(responseText);
   } catch (e) {
+    console.error("Failed to parse Claude response:", responseText.substring(0, 200));
     throw new Error("Invalid JSON response from Claude API");
   }
 
-  if (!data.content || !Array.isArray(data.content) || data.content.length === 0) {
-    throw new Error("Invalid response format from Claude API");
+  console.log("Parsed Claude response:", JSON.stringify(data, null, 2));
+
+  // More robust content extraction
+  if (!data.content || !Array.isArray(data.content)) {
+    console.error("Invalid content structure:", data);
+    throw new Error("Invalid response format from Claude API - no content array");
   }
 
-  return data.content[0].text || "No response content";
+  if (data.content.length === 0) {
+    console.error("Empty content array:", data);
+    throw new Error("Empty response from Claude API");
+  }
+
+  const firstContent = data.content[0];
+  if (!firstContent || typeof firstContent.text !== 'string') {
+    console.error("Invalid first content item:", firstContent);
+    throw new Error("Invalid content format from Claude API");
+  }
+
+  const responseContent = firstContent.text.trim();
+  
+  if (!responseContent) {
+    console.error("Empty response text after trim");
+    throw new Error("Empty response content from Claude API");
+  }
+
+  console.log("Final extracted content:", responseContent.substring(0, 100) + "...");
+  return responseContent;
 }
