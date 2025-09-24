@@ -39,9 +39,9 @@
             --text-secondary: #AAAAAA;
             --accent-color: #FFC107;
             --message-bg: #0a0a0a;
-            --code-bg: #1a1a1a;
+            --code-bg: #000000;
+            --code-color: #FFFFFF;
             --heading-color: #FFC107;
-            --code-color: #63b3ed;
             --inline-code-bg: rgba(255, 193, 7, 0.1);
             --inline-code-color: #FFC107;
             --online-color: #10B981;
@@ -701,6 +701,9 @@
             overflow-x: auto;
             margin: 16px 0;
             color: var(--code-color);
+            font-family: 'Courier New', Courier, monospace;
+            border: 1px solid #444;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
         
         .chat-message-text code {
@@ -709,6 +712,7 @@
             border-radius: 4px;
             font-size: 14px;
             color: var(--inline-code-color);
+            font-family: 'Courier New', Courier, monospace;
         }
         
         .chat-message-text pre code {
@@ -1469,6 +1473,17 @@
             
             body.keyboard-open .chat-messages {
                 padding-bottom: 80px;
+            }
+            
+            /* Adjust code blocks for mobile */
+            .chat-message-text pre {
+                font-size: 14px;
+                padding: 12px;
+                margin: 12px 0;
+            }
+            
+            .chat-message-text code {
+                font-size: 13px;
             }
         }
         
@@ -2650,6 +2665,9 @@
                                     
                                     // Scroll to bottom
                                     elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+                                    
+                                    // Add delay for slow typing effect
+                                    await new Promise(resolve => setTimeout(resolve, state.settings.typingSpeed));
                                 }
                             }
                         } catch (e) {
