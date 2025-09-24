@@ -1901,7 +1901,7 @@
                     <div class="settings-item">
                         <div class="settings-checkbox">
                             <input type="checkbox" id="streamingToggle" checked>
-                            <label for="streamingToggle">Enable Response Streaming</label>
+                            <label for="streamingToggle">Enable Typing Effect</label>
                         </div>
                     </div>
                     
@@ -2419,63 +2419,89 @@
         
         // Render messages
         function renderMessages() {
-            elements.conversation.innerHTML = state.messages.map(message => `
-                <div class="chat-message" data-id="${message.id}">
-                    <div class="chat-message-avatar ${message.role === 'user' ? 'chat-message-user' : 'chat-message-assistant'}">
-                        ${message.role === 'user' ? 
-                            '<img src="https://picsum.photos/seed/user/40/40.jpg" alt="User">' : 
-                            '<img src="https://z-cdn-media.chatglm.cn/files/b5adefdc-370b-43ab-bac7-7b5d02703e79_favicon.png?auth_key=1790181361-361cb6963d6543d7a58ce0880765a3c6-0-38da4cf767b6dab640a5a8aaf7605d27" alt="AJ">'
-                        }
-                    </div>
-                    <div class="chat-message-content">
-                        <div class="chat-message-header">
-                            <div class="chat-message-name">${message.role === 'user' ? 'You' : 'Claude AI'}</div>
-                            <div class="chat-message-time">${formatTime(message.timestamp)}</div>
+            if (!elements.conversation) {
+                console.error('Conversation element not found');
+                return;
+            }
+            
+            console.log('Rendering messages, count:', state.messages.length);
+            
+            elements.conversation.innerHTML = state.messages.map((message, index) => {
+                // Ensure message has required properties
+                if (!message.id) {
+                    message.id = Date.now().toString() + index;
+                }
+                if (!message.timestamp) {
+                    message.timestamp = new Date();
+                }
+                if (!message.content) {
+                    message.content = '';
+                }
+                
+                const formattedContent = formatMessage(message.content);
+                
+                return `
+                    <div class="chat-message" data-id="${message.id}">
+                        <div class="chat-message-avatar ${message.role === 'user' ? 'chat-message-user' : 'chat-message-assistant'}">
+                            ${message.role === 'user' ? 
+                                '<img src="https://picsum.photos/seed/user/40/40.jpg" alt="User">' : 
+                                '<img src="https://z-cdn-media.chatglm.cn/files/b5adefdc-370b-43ab-bac7-7b5d02703e79_favicon.png?auth_key=1790181361-361cb6963d6543d7a58ce0880765a3c6-0-38da4cf767b6dab640a5a8aaf7605d27" alt="AJ">'
+                            }
                         </div>
-                        <div class="chat-message-text">${formatMessage(message.content)}</div>
-                        <div class="chat-message-actions">
-                            ${message.role === 'assistant' ? `
-                                <button class="chat-message-action" title="Copy" onclick="copyMessage('${message.id}')">
-                                    <i data-lucide="copy" class="w-4 h-4"></i>
-                                </button>
-                                <button class="chat-message-action" title="Regenerate" onclick="regenerateMessage('${message.id}')">
-                                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-                                </button>
-                                <button class="chat-message-action" title="Good" onclick="rateMessage('${message.id}', 'good')">
-                                    <i data-lucide="thumbs-up" class="w-4 h-4"></i>
-                                </button>
-                                <button class="chat-message-action" title="Bad" onclick="rateMessage('${message.id}', 'bad')">
-                                    <i data-lucide="thumbs-down" class="w-4 h-4"></i>
-                                </button>
-                            ` : `
-                                <button class="chat-message-action" title="Edit" onclick="editMessage('${message.id}')">
-                                    <i data-lucide="edit" class="w-4 h-4"></i>
-                                </button>
-                                <button class="chat-message-action" title="Delete" onclick="deleteMessage('${message.id}')">
-                                    <i data-lucide="trash" class="w-4 h-4"></i>
-                                </button>
-                            `}
+                        <div class="chat-message-content">
+                            <div class="chat-message-header">
+                                <div class="chat-message-name">${message.role === 'user' ? 'You' : 'Claude AI'}</div>
+                                <div class="chat-message-time">${formatTime(message.timestamp)}</div>
+                            </div>
+                            <div class="chat-message-text">${formattedContent}</div>
+                            <div class="chat-message-actions">
+                                ${message.role === 'assistant' ? `
+                                    <button class="chat-message-action" title="Copy" onclick="copyMessage('${message.id}')">
+                                        <i data-lucide="copy" class="w-4 h-4"></i>
+                                    </button>
+                                    <button class="chat-message-action" title="Regenerate" onclick="regenerateMessage('${message.id}')">
+                                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                    </button>
+                                    <button class="chat-message-action" title="Good" onclick="rateMessage('${message.id}', 'good')">
+                                        <i data-lucide="thumbs-up" class="w-4 h-4"></i>
+                                    </button>
+                                    <button class="chat-message-action" title="Bad" onclick="rateMessage('${message.id}', 'bad')">
+                                        <i data-lucide="thumbs-down" class="w-4 h-4"></i>
+                                    </button>
+                                ` : `
+                                    <button class="chat-message-action" title="Edit" onclick="editMessage('${message.id}')">
+                                        <i data-lucide="edit" class="w-4 h-4"></i>
+                                    </button>
+                                    <button class="chat-message-action" title="Delete" onclick="deleteMessage('${message.id}')">
+                                        <i data-lucide="trash" class="w-4 h-4"></i>
+                                    </button>
+                                `}
+                            </div>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
             
             // Re-initialize Lucide icons
             lucide.createIcons();
             
             // Scroll to bottom
             elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+            
+            console.log('Messages rendered successfully');
         }
         
-        // Add a message to the conversation
+        // Add a message to the conversation with better error handling
         function addMessage(role, content, provider = null) {
             const message = {
-                id: Date.now().toString(),
+                id: Date.now().toString() + Math.random().toString(36).substr(2, 9), // More unique ID
                 role,
-                content,
+                content: content || '', // Ensure content is never undefined
                 provider: provider || state.selectedProvider,
                 timestamp: new Date()
             };
+            
+            console.log('Adding message:', { role, content: content.substring(0, 50) + '...', id: message.id });
             
             state.messages.push(message);
             
@@ -2485,7 +2511,7 @@
                 state.currentConversation.updatedAt = new Date();
                 
                 // Update conversation title if it's the first user message
-                if (state.currentConversation.title === 'New Chat' && role === 'user') {
+                if (state.currentConversation.title === 'New Chat' && role === 'user' && content.trim()) {
                     state.currentConversation.title = content.slice(0, 50) + (content.length > 50 ? '...' : '');
                     elements.chatTitle.textContent = state.currentConversation.title;
                 }
@@ -2503,7 +2529,7 @@
             return message;
         }
         
-        // Send a message to the AI
+        // Send a message to the AI - FIXED VERSION
         async function sendMessage() {
             const content = elements.chatInput.value.trim();
             if (!content || state.isGenerating) return;
@@ -2542,16 +2568,17 @@
                         ...state.messages.filter(m => m.role === 'user' || m.role === 'assistant').map(m => ({
                             role: m.role,
                             content: m.content
-                        })),
-                        { role: 'user', content }
+                        }))
                     ],
                     options: {
                         creativity: state.settings.creativity,
                         length: state.settings.length,
                         focus: state.settings.focus,
-                        streaming: state.settings.streaming
+                        streaming: false // Disable streaming for now since API doesn't support it
                     }
                 };
+                
+                console.log('Sending request:', request);
                 
                 // Send to Vercel API
                 const response = await fetch('/api/chat', {
@@ -2561,6 +2588,8 @@
                     },
                     body: JSON.stringify(request)
                 });
+                
+                console.log('API Response status:', response.status);
                 
                 if (!response.ok) {
                     const errorText = await response.text();
@@ -2580,12 +2609,36 @@
                 // Remove typing indicator
                 removeTypingIndicator();
                 
-                // Process response
-                if (state.settings.streaming) {
-                    await streamResponse(response);
+                // Process response - FIXED: Handle the correct response format
+                const data = await response.json();
+                console.log('Received data:', data);
+                
+                // Extract the actual message content correctly
+                let aiResponseContent = '';
+                
+                if (data.choices && data.choices.length > 0 && data.choices[0].message) {
+                    aiResponseContent = data.choices[0].message.content;
+                } else if (data.content) {
+                    // Fallback if response format is different
+                    aiResponseContent = data.content;
                 } else {
-                    const data = await response.json();
-                    addMessage('assistant', data.choices[0].message.content);
+                    console.error('Unexpected response format:', data);
+                    throw new Error('Invalid response format from API');
+                }
+                
+                // Check if we actually got content
+                if (!aiResponseContent || aiResponseContent.trim() === '') {
+                    console.error('Empty AI response content');
+                    throw new Error('Empty response from AI');
+                }
+                
+                console.log('AI response content:', aiResponseContent.substring(0, 100) + '...');
+                
+                // Add the AI message with typing effect if enabled
+                if (state.settings.streaming) {
+                    await addMessageWithTypingEffect('assistant', aiResponseContent);
+                } else {
+                    addMessage('assistant', aiResponseContent);
                 }
                 
                 // Save conversation
@@ -2617,78 +2670,53 @@
             }
         }
         
-        // Stream response from AI with slow typing effect
-        async function streamResponse(response) {
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
+        // NEW: Add message with typing effect (simulated streaming)
+        async function addMessageWithTypingEffect(role, content) {
+            // Add empty message first
+            const message = addMessage(role, '');
+            const messageElement = document.querySelector(`.chat-message[data-id="${message.id}"] .chat-message-text`);
             
-            let aiMessage = addMessage('assistant', '');
-            let content = '';
-            let messageElement = document.querySelector(`.chat-message[data-id="${aiMessage.id}"] .chat-message-text`);
+            if (!messageElement) {
+                // Fallback: just add the message normally
+                const msg = state.messages.find(m => m.id === message.id);
+                if (msg) msg.content = content;
+                renderMessages();
+                return;
+            }
             
             // Add typing cursor
-            if (messageElement) {
-                messageElement.innerHTML = '<span class="typing-cursor"></span>';
+            messageElement.innerHTML = '<span class="typing-cursor"></span>';
+            
+            // Type out the message character by character
+            let currentText = '';
+            const chars = content.split('');
+            
+            for (let i = 0; i < chars.length; i++) {
+                currentText += chars[i];
+                
+                // Format the current text and add typing cursor
+                const formattedContent = formatMessage(currentText);
+                messageElement.innerHTML = formattedContent + '<span class="typing-cursor"></span>';
+                
+                // Scroll to bottom
+                elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+                
+                // Add delay for typing effect (adjust speed as needed)
+                await new Promise(resolve => setTimeout(resolve, 20)); // 20ms per character
             }
             
-            while (true) {
-                const { done, value } = await reader.read();
-                
-                if (done) break;
-                
-                const chunk = decoder.decode(value);
-                const lines = chunk.split('\n');
-                
-                for (const line of lines) {
-                    if (line.startsWith('data: ')) {
-                        const data = line.slice(6);
-                        if (data === '[DONE]') {
-                            // Remove typing cursor when done
-                            if (messageElement) {
-                                const cursor = messageElement.querySelector('.typing-cursor');
-                                if (cursor) cursor.remove();
-                            }
-                            return;
-                        }
-                        
-                        try {
-                            const parsed = JSON.parse(data);
-                            if (parsed.content) {
-                                content += parsed.content;
-                                
-                                // Update message with typing effect
-                                if (messageElement && state.settings.streaming) {
-                                    // Format the content
-                                    const formattedContent = formatMessage(content);
-                                    
-                                    // Add typing cursor
-                                    messageElement.innerHTML = formattedContent + '<span class="typing-cursor"></span>';
-                                    
-                                    // Scroll to bottom
-                                    elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
-                                    
-                                    // Add delay for slow typing effect
-                                    await new Promise(resolve => setTimeout(resolve, state.settings.typingSpeed));
-                                }
-                            }
-                        } catch (e) {
-                            console.error('Error parsing streaming data:', e);
-                        }
-                    }
-                }
-            }
+            // Remove typing cursor and update message in state
+            const finalContent = formatMessage(content);
+            messageElement.innerHTML = finalContent;
             
             // Update message in state
-            const message = state.messages.find(m => m.id === aiMessage.id);
-            if (message) {
-                message.content = content;
+            const msg = state.messages.find(m => m.id === message.id);
+            if (msg) {
+                msg.content = content;
             }
             
-            // Remove typing cursor when done
-            if (messageElement) {
-                const cursor = messageElement.querySelector('.typing-cursor');
-                if (cursor) cursor.remove();
-            }
+            // Final scroll to bottom
+            elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
         }
         
         // Show typing indicator
@@ -2727,13 +2755,34 @@
             }
         }
         
-        // Format message content
+        // Format message content with better error handling
         function formatMessage(content) {
-            // Use marked to parse markdown
-            const html = marked.parse(content);
+            // Ensure content is a string
+            if (typeof content !== 'string') {
+                console.warn('formatMessage received non-string content:', typeof content, content);
+                content = String(content || '');
+            }
             
-            // Sanitize HTML to prevent XSS
-            return DOMPurify.sanitize(html);
+            // If content is empty, return a placeholder
+            if (!content.trim()) {
+                return '<em class="text-gray-500">No content</em>';
+            }
+            
+            try {
+                // Use marked to parse markdown
+                const html = marked.parse(content);
+                
+                // Sanitize HTML to prevent XSS
+                return DOMPurify.sanitize(html);
+            } catch (error) {
+                console.error('Error formatting message:', error);
+                // Fallback: just return the content with basic HTML escaping
+                return content
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/\n/g, '<br>');
+            }
         }
         
         // Copy message to clipboard
