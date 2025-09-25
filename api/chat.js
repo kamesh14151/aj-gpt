@@ -191,4 +191,4 @@ async function fetchClaudeResponse(messages, options, apiKey) {
 
   console.log("Final extracted content:", responseContent.substring(0, 100) + "...");
   return responseContent;
-}
+}  
